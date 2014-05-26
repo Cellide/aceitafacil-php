@@ -8,6 +8,10 @@
     "time": "2014-05-26",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Cellide",
+            "homepage": "http://www.cellide.com"
+        },
 		{
             "name": "Fernando Piancastelli",
             "email": "fernando.piancastelli@cellide.com",
@@ -21,8 +25,11 @@
         "source": "https://github.com/cellide/aceitafacil-php"
     },
     "autoload": {
+        "psr-4": {
+            "AceitaFacil\\": "src/"
+        },
         "psr-0": {
-            "AceitaFacil": "src/",
+            "AceitaFacil": "src/"
         }
     },
 	"require": {
