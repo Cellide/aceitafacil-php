@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-0": {
-            "AceitaFacil": "src/"
+            "Cellide\\AceitaFacil": "src"
         }
     },
 	"require": {

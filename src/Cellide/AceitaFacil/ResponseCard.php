@@ -1,6 +1,6 @@
 <?php
 
-namespace AceitaFacil;
+namespace Cellide\AceitaFacil;
 
 /**
  * Response wrapper for AceitaFácil's API concerning Cards information
