@@ -81,7 +81,7 @@ class Client
         if (empty($this->username) || empty($this->password))
             throw new \RuntimeException('Client not properly initialized');
         
-        $request = $client->createRequest('POST', '/card', array(
+        $request = $this->client->createRequest('POST', '/card', array(
             'auth' => array($this->username, $this->password),
             'json' => array(
                 'customer' => array(
