@@ -52,7 +52,7 @@ abstract class Response
         else if (isset($json['card']))
             return new ResponseCard($http_status, $json);
         else
-            throw new RuntimeException('Could not parse response type');
+            throw new \RuntimeException('Could not parse response type');
     }
     
     /**

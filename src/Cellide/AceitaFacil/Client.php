@@ -44,7 +44,7 @@ class Client
      */
     public function __construct($is_sandbox = false)
     {
-        $this->client = new GuzzleHttp\Client(array('base_url' => ($is_sandbox ? self::SANDBOX_URL : self::PRODUCTION_URL)));
+        $this->client = new \GuzzleHttp\Client(array('base_url' => ($is_sandbox ? self::SANDBOX_URL : self::PRODUCTION_URL)));
     }
     
     /**
@@ -59,7 +59,7 @@ class Client
     public function init($username, $password)
     {
         if (empty($username) || empty($password)) {
-            throw new InvalidArgumentException('Username and password must be set');
+            throw new \InvalidArgumentException('Username and password must be set');
         }
         $this->username = $username;
         $this->password = $password;
@@ -77,9 +77,9 @@ class Client
     public function saveCard($name, $number, $cvv, $exp_date)
     {
         if (empty($name) || empty($number) || empty($cvv) || empty($exp_date))
-            throw new InvalidArgumentException('Card info missing');
+            throw new \InvalidArgumentException('Card info missing');
         if (empty($this->username) || empty($this->password))
-            throw new RuntimeException('Client not properly initialized');
+            throw new \RuntimeException('Client not properly initialized');
         
         $request = $client->createRequest('POST', '/card', array(
             'auth' => array($this->username, $this->password),

@@ -47,7 +47,7 @@ class ResponseCard extends Response
         parent::__construct($http_status, $json);
         
         if (!isset($this->json['card']))
-            throw new InvalidArgumentException('Response is not a valid Card object');
+            throw new \InvalidArgumentException('Response is not a valid Card object');
         
         $card = $this->json['card'];
         $this->token = $card['token'];
