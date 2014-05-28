@@ -59,3 +59,6 @@ vendor/*
 
 # Composer
 composer.lock
+
+# IDE helpers
+phpunit.php
