@@ -14,11 +14,11 @@ namespace AceitaFacil;
 abstract class Response
 {
     /**
-     * If the response was a successful one
+     * If the response was an error
      * 
      * @var bool
      */
-    private $is_successful;
+    private $is_error;
     
     /**
      * HTTP status returned
@@ -35,31 +35,54 @@ abstract class Response
     protected $json;
     
     /**
-     * Wraps an API response
+     * Returns the concrete response which should be instantiated
      * 
      * @param  GuzzleHttp\Message\ResponseInterface   $response
      * @return self
+     * @throws RuntimeException
      */
-    public function __construct(GuzzleHttp\Message\ResponseInterface $response)
+    public static function parse(GuzzleHttp\Message\ResponseInterface $response)
     {
-        $this->http_status = intval($response->getStatusCode());
-        $this->is_successful = ($this->http_status >= 200 && $this->http_status < 300);
+        $http_status = intval($response->getStatusCode());
+        $is_error = !($http_status >= 200 && $http_status < 300);
+        $json = $response->json();
         
-        $this->json = $response->json();
+        if ($is_error)
+            return new ResponseError($http_status, $json);
+        else if (isset($json['card']))
+            return new ResponseCard($http_status, $json);
+        else
+            throw new RuntimeException('Could not parse response type');
     }
     
     /**
-     * If the response was successful
+     * Wraps an API response
+     * 
+     * Must be called by {parse()}
+     * 
+     * @param  int       $http_status   HTTP status code
+     * @param  mixed[]   $json          Decoded json object with response details
+     * @return self
+     */
+    protected function __construct($http_status, $json)
+    {
+        $this->http_status = $http_status;
+        $this->is_error = !($this->http_status >= 200 && $this->http_status < 300);
+        $this->json = $json;
+    }
+    
+    /**
+     * If the response was unsuccessful
      * 
      * @return bool
      */
-    public function isSuccessful()
+    public function isError()
     {
-        return $this->is_successful;
+        return $this->is_error;
     }
     
     /**
-     * Return the HTTP response status
+     * Returns the HTTP status code
      * 
      * @return int
      */

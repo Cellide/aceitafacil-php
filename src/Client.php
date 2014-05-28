@@ -96,6 +96,6 @@ class Client
             )
         ));
         $reponse = $this->client->send($request);
-        return new ResponseCard($response);
+        return Response::parse($response);
     }
 }

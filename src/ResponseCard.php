@@ -5,13 +5,11 @@ namespace AceitaFacil;
 /**
  * Response wrapper for AceitaFácil's API concerning Cards information
  * 
- * Should be used as an array (by accessing `$response['token']`) 
- * 
  * @author Fernando Piancastelli
  * @link https://github.com/Cellide/aceitafacil-php
  * @license MIT
  */
-class ResponseCard extends Response implements ArrayAccess
+class ResponseCard extends Response
 {
     /**
      * Card's API token
@@ -37,12 +35,16 @@ class ResponseCard extends Response implements ArrayAccess
     /**
      * Wraps an API response
      * 
-     * @param  GuzzleHttp\Message\ResponseInterface   $response
+     * Must be called by {parse()}
+     * 
+     * @param  int       $http_status   HTTP status code
+     * @param  mixed[]   $json          Decoded json object with response details
      * @return self
+     * @throws InvalidArgumentException
      */
-    public function __construct(GuzzleHttp\Message\ResponseInterface $response)
+    protected function __construct($http_status, $json)
     {
-        parent::__construct($response);
+        parent::__construct($http_status, $json);
         
         if (!isset($this->json['card']))
             throw new InvalidArgumentException('Response is not a valid Card object');
@@ -53,19 +55,18 @@ class ResponseCard extends Response implements ArrayAccess
         $this->last_digits = $card['last_digits'];
     }
     
-    public function offsetSet($offset, $value) {
-        throw new BadMethodCallException('Responses are read-only');
+    public function getToken()
+    {
+        return $this->token;
     }
     
-    public function offsetUnset($offset) {
-        throw new BadMethodCallException('Responses are read-only');
+    public function getIssuer()
+    {
+        return $this->issuer;
     }
     
-    public function offsetExists($offset) {
-        return ($offset == 'token' || $offset == 'issuer' || $offset == 'last_digits');
-    }
-    
-    public function offsetGet($offset) {
-        return isset($this->$offset) ? $this->$offset : null;
+    public function getLastDigits()
+    {
+        return $this->last_digits;
     }
 }
