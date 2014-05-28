@@ -1,6 +1,6 @@
 <?php
 
-namespace Cellide\AceitaFacil;
+namespace AceitaFacil;
 
 /**
  * Error response wrapper for AceitaFácil's API

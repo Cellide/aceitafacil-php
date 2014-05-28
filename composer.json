@@ -1,7 +1,7 @@
 {
     "name": "cellide/aceitafacil-php",
     "description": "PHP wrapper for Aceita Fácil payments",
-    "version": "1.0.3-alpha",
+    "version": "1.0.4-alpha",
     "type": "library",
     "keywords": ["aceitafacil"],
     "homepage": "https://github.com/cellide/aceitafacil-php",
@@ -25,8 +25,8 @@
         "source": "https://github.com/cellide/aceitafacil-php"
     },
     "autoload": {
-        "psr-0": {
-            "Cellide\\AceitaFacil": "src"
+        "psr-4": {
+            "AceitaFacil\\": "src/"
         }
     },
 	"require": {
