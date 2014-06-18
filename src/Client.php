@@ -40,11 +40,15 @@ class Client
      * Client contructor
      * 
      * @param  bool   $is_sandbox     If true, sandobox environment is used. Default: false.
+     * @param  mixed  $mock_adapter    Optionally use this \GuzzleHttp\Adapter\MockAdapter for requests
      * @return self
      */
-    public function __construct($is_sandbox = false)
+    public function __construct($is_sandbox = false, $mock_adapter = null)
     {
-        $this->client = new \GuzzleHttp\Client(array('base_url' => ($is_sandbox ? self::SANDBOX_URL : self::PRODUCTION_URL)));
+        $options = (!empty($mock_adapter)) ?
+                        array('adapter' => $mock_adapter) :
+                        array('base_url' => ($is_sandbox ? self::SANDBOX_URL : self::PRODUCTION_URL));
+        $this->client = new \GuzzleHttp\Client($options);
     }
     
     /**
@@ -66,6 +70,36 @@ class Client
     }
     
     /**
+     * Wrapper for API calls
+     * 
+     * @param  string  $method    HTTP method (POST, GET)
+     * @param  string  $endpoint  API endpoint
+     * @param  mixed[] $data      Data to be sent
+     * @return Response
+     * @throws RuntimeException if not initialized
+     */
+    private function request($method, $endpoint, $data)
+    {
+        if (empty($this->username) || empty($this->password))
+            throw new \RuntimeException('Client not properly initialized');
+        
+        $full_data = array(
+            'auth' => array($this->username, $this->password),
+            'body' => $data
+        );
+        $request = $this->client->createRequest($method, $endpoint, $full_data);
+        
+        $response = null;
+        try {
+            $response = $this->client->send($request);
+        }
+        catch (\GuzzleHttp\Exception\TransferException $e) {
+            $response = $e->getResponse();
+        }
+        return Response::parse($response);
+    }
+    
+    /**
      * Saves a card info
      * 
      * @param  string $card       Cardholder's name.
@@ -78,24 +112,14 @@ class Client
     {
         if (empty($name) || empty($number) || empty($cvv) || empty($exp_date))
             throw new \InvalidArgumentException('Card info missing');
-        if (empty($this->username) || empty($this->password))
-            throw new \RuntimeException('Client not properly initialized');
         
-        $request = $this->client->createRequest('POST', '/card', array(
-            'auth' => array($this->username, $this->password),
-            'json' => array(
-                'customer' => array(
-                    'id' => $this->password
-                ),
-                'card' => array(
-                    'number' => $number,
-                    'name' => $name,
-                    'cvv' => $cvv,
-                    'exp_date' => $exp_date
-                )
-            )
-        ));
-        $reponse = $this->client->send($request);
-        return Response::parse($response);
+        $data = array(
+            'customer[id]' => $this->username,
+            'card[number]' => $number,
+            'card[name]' => $name,
+            'card[cvv]' => $cvv,
+            'card[exp_date]' => $exp_date
+        );
+        return $this->request('POST', '/card', $data);
     }
 }

@@ -19,11 +19,11 @@ class ResponseCard extends Response
     private $token;
     
     /**
-     * Card's issuer
+     * Card's brand
      * 
      * @var string
      */
-    private $issuer;
+    private $brand;
     
     /**
      * Card's last digits
@@ -49,9 +49,9 @@ class ResponseCard extends Response
         if (!isset($this->json['card']))
             throw new \InvalidArgumentException('Response is not a valid Card object');
         
-        $card = $this->json['card'];
+        $card = $this->json['card'][0];
         $this->token = $card['token'];
-        $this->issuer = $card['issuer'];
+        $this->brand = $card['card_brand'];
         $this->last_digits = $card['last_digits'];
     }
     
@@ -60,9 +60,9 @@ class ResponseCard extends Response
         return $this->token;
     }
     
-    public function getIssuer()
+    public function getBrand()
     {
-        return $this->issuer;
+        return $this->brand;
     }
     
     public function getLastDigits()

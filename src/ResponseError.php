@@ -24,15 +24,27 @@ class ResponseError extends Response
      * @param  int       $http_status   HTTP status code
      * @param  mixed[]   $json          Decoded json object with response details
      * @return self
-     * @throws InvalidArgumentException
      */
     protected function __construct($http_status, $json)
     {
-        if (!isset($json['errors']))
-            throw new \InvalidArgumentException('Response is not a valid Error object');
+        parent::__construct($http_status, $json);
         
-        foreach ($json['errors'] as $error) {
-            $this->errors[] = $error;
+        if (empty($this->json) || !isset($this->json['errors'])) {
+            $this->errors[] = array('message' => "Error $http_status", 'name' => 'INVALID REQUEST', 'at' => '');
+        } else {
+            foreach ($this->json['errors'] as $error) {
+                $this->errors[] = $error;
+            }
         }
+    }
+    
+    /**
+     * Return all errors
+     * 
+     * @return mixed[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

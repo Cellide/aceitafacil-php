@@ -39,20 +39,25 @@ abstract class Response
      * 
      * @param  GuzzleHttp\Message\ResponseInterface   $response
      * @return self
-     * @throws RuntimeException
+     * @throws RuntimeException if response wasn't recognized
      */
-    public static function parse(GuzzleHttp\Message\ResponseInterface $response)
+    public static function parse(\GuzzleHttp\Message\ResponseInterface $response)
     {
         $http_status = intval($response->getStatusCode());
         $is_error = !($http_status >= 200 && $http_status < 300);
-        $json = $response->json();
+        
+        $json = null;
+        try {
+            $json = $response->json();
+        }
+        catch (\GuzzleHttp\Exception\ParseException $e) { }
         
         if ($is_error)
             return new ResponseError($http_status, $json);
         else if (isset($json['card']))
             return new ResponseCard($http_status, $json);
         else
-            throw new \RuntimeException('Could not parse response type');
+            throw new \RuntimeException('Could not recognize response type');
     }
     
     /**
