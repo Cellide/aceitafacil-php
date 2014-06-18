@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php">
   <testsuites>
-    <testsuite>
-      <directory>tests</directory>
+    <testsuite name="unit">
+      <directory>tests/unit</directory>
+    </testsuite>
+    <testsuite name="integration">
+      <directory>tests/integration</directory>
     </testsuite>
   </testsuites>
+  <logging>
+		<log type="testdox-html" target="tests/docs/testdox.html" />
+		<log type="coverage-html" target="tests/docs/coverage" charset="UTF-8" />
+  </logging>
+  <php>
+    <env name="APPID" value="123" />
+    <env name="APPSECRET" value="123" />
+  </php>
   <filter>
     <whitelist>
       <directory suffix=".php">src</directory>

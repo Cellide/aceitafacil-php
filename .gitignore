@@ -62,3 +62,6 @@ composer.lock
 
 # IDE helpers
 phpunit.php
+
+# Tests docs
+tests/docs/*
