@@ -78,14 +78,14 @@ class Client
      * @return Response
      * @throws RuntimeException if not initialized
      */
-    private function request($method, $endpoint, $data)
+    private function request($method, $endpoint, $data = null)
     {
         if (empty($this->username) || empty($this->password))
             throw new \RuntimeException('Client not properly initialized');
         
         $full_data = array(
             'auth' => array($this->username, $this->password),
-            'body' => $data
+            'body' => (!empty($data) ? $data : array())
         );
         $request = $this->client->createRequest($method, $endpoint, $full_data);
         
@@ -96,7 +96,7 @@ class Client
         catch (\GuzzleHttp\Exception\TransferException $e) {
             $response = $e->getResponse();
         }
-        return Response::parse($response);
+        return new Response($response);
     }
     
     /**
@@ -106,7 +106,7 @@ class Client
      * @param  string $number     Card's number
      * @param  string $cvv        Card's CVV
      * @param  string $exp_date   Card's expiration date, formatted as YYYYMM
-     * @return ResponseCard
+     * @return Response
      */
     public function saveCard($name, $number, $cvv, $exp_date)
     {
@@ -121,5 +121,33 @@ class Client
             'card[exp_date]' => $exp_date
         );
         return $this->request('POST', '/card', $data);
+    }
+    
+    /**
+     * Get all cards stored
+     * 
+     * @return Response
+     */
+    public function getAllCards()
+    {
+        return $this->request('GET', '/card');
+    }
+    
+    /**
+     * Delete a stored card
+     * 
+     * @param  string $token      Card's reference token
+     * @return Response
+     */
+    public function deleteCard($token)
+    {
+        if (empty($token))
+            throw new \InvalidArgumentException('Card token missing');
+        
+        $data = array(
+            'customer[id]' => $this->username,
+            'card[token]' => $token
+        );
+        return $this->request('DELETE', '/card', $data);
     }
 }

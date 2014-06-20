@@ -5,13 +5,11 @@ namespace AceitaFacil;
 /**
  * Response wrapper for AceitaFácil's API
  * 
- * Must be extended to a class implementing a concrete response
- * 
  * @author Fernando Piancastelli
  * @link https://github.com/Cellide/aceitafacil-php
  * @license MIT
  */
-abstract class Response
+class Response
 {
     /**
      * If the response was an error
@@ -28,52 +26,69 @@ abstract class Response
     private $http_status;
     
     /**
-     * JSON object from the response
+     * List of error objects
      * 
-     * @var object
+     * @var mixed[]
      */
-    protected $json;
+    private $errors;
     
     /**
-     * Returns the concrete response which should be instantiated
+     * Decoded success response body
      * 
-     * @param  GuzzleHttp\Message\ResponseInterface   $response
-     * @return self
-     * @throws RuntimeException if response wasn't recognized
+     * @var mixed[]
      */
-    public static function parse(\GuzzleHttp\Message\ResponseInterface $response)
-    {
-        $http_status = intval($response->getStatusCode());
-        $is_error = !($http_status >= 200 && $http_status < 300);
-        
-        $json = null;
-        try {
-            $json = $response->json();
-        }
-        catch (\GuzzleHttp\Exception\ParseException $e) { }
-        
-        if ($is_error)
-            return new ResponseError($http_status, $json);
-        else if (isset($json['card']))
-            return new ResponseCard($http_status, $json);
-        else
-            throw new \RuntimeException('Could not recognize response type');
-    }
+    private $body;
+    
+    /**
+     * Parsed response with one or more entities
+     * 
+     * @var mixed[]
+     */
+    private $objects = array();
     
     /**
      * Wraps an API response
      * 
-     * Must be called by {parse()}
-     * 
-     * @param  int       $http_status   HTTP status code
-     * @param  mixed[]   $json          Decoded json object with response details
+     * @param  GuzzleHttp\Message\ResponseInterface   $response
      * @return self
      */
-    protected function __construct($http_status, $json)
+    public function __construct(\GuzzleHttp\Message\ResponseInterface $response)
     {
-        $this->http_status = $http_status;
+        $this->http_status = intval($response->getStatusCode());
         $this->is_error = !($this->http_status >= 200 && $this->http_status < 300);
-        $this->json = $json;
+        try {
+            $this->body = $response->json();
+        }
+        catch (\GuzzleHttp\Exception\ParseException $e) { }
+        
+        if ($this->isError()) {
+            if (empty($this->body) || !isset($this->body['errors'])) {
+                $this->errors[] = array('message' => "Error $this->http_status", 'name' => 'INVALID REQUEST', 'at' => '');
+            } else {
+                foreach ($this->body['errors'] as $error) {
+                    $this->errors[] = $error;
+                }
+            }
+        } else {
+            $this->parse();
+        }
+    }
+    
+    /**
+     * Parses the response body into known entities
+     * 
+     * @throws RuntimeException if response wasn't recognized
+     */
+    private function parse()
+    {
+        if (isset($this->body['card'])) {
+            $cards = $this->body['card'];
+            foreach ($cards as $card) {
+                $this->objects[] = new Card($card);
+            }
+        } else {
+            throw new \RuntimeException('Could not recognize response type');
+        }
     }
     
     /**
@@ -94,5 +109,25 @@ abstract class Response
     public function getHttpStatus()
     {
         return $this->http_status;
+    }
+    
+    /**
+     * Returns response objects when successful
+     * 
+     * @return mixed[]
+     */
+    public function getObjects()
+    {
+        return $this->objects;
+    }
+    
+    /**
+     * Returns all errors
+     * 
+     * @return mixed[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }
