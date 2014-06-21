@@ -1,8 +1,9 @@
 <?php
 
-namespace AceitaFacil\Tests;
+namespace AceitaFacil\Tests\Unit;
 
 use AceitaFacil\Client,
+    AceitaFacil\Entity,
     GuzzleHttp\Adapter\MockAdapter,
     GuzzleHttp\Message\Response,
     GuzzleHttp\Message\MessageFactory;
@@ -13,11 +14,12 @@ class CardTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testSaveCardNoArguments()
+    public function testSaveEmptyCard()
     {
         $client = new Client();
         $client->init('test', 'test');
-        $response = $client->saveCard(null, null, null, null);
+        $card = new Entity\Card();
+        $response = $client->saveCard($card);
     }
     
     public function testSaveCard()
@@ -34,18 +36,23 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $card_number = '343434343434343';
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->saveCard('John Doe', $card_number, '111', '201705');
+        $card = new Entity\Card();
+        $card->name = 'John Doe';
+        $card->number = $card_number;
+        $card->exp_date = '201705';
+        
+        $response = $client->saveCard($card);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $cards = $response->getObjects();
         $this->assertNotEmpty($cards, 'Objects were filled');
         
         foreach ($cards as $card) {
-            $this->assertInstanceOf('AceitaFacil\Card', $card, 'Object is a card');
-            $this->assertNotEmpty($card->getToken(), 'Token was received');
-            $this->assertNotEmpty($card->getBrand(), 'Brand was recognized');
-            $this->assertNotEmpty($card->getLastDigits(), 'Last digits were returned');
-            $this->assertEquals(substr($card_number, -4, 4), $card->getLastDigits(), 'Last digits match');
+            $this->assertInstanceOf('AceitaFacil\Entity\Card', $card, 'Object is a card');
+            $this->assertNotEmpty($card->token, 'Token was received');
+            $this->assertNotEmpty($card->brand, 'Brand was recognized');
+            $this->assertNotEmpty($card->last_digits, 'Last digits were returned');
+            $this->assertEquals(substr($card_number, -4, 4), $card->last_digits, 'Last digits match');
         }
     }
     
@@ -70,21 +77,22 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($cards, 'Objects were filled');
         
         foreach ($cards as $card) {
-            $this->assertInstanceOf('AceitaFacil\Card', $card, 'Object is a card');
-            $this->assertNotEmpty($card->getToken(), 'Token was received');
-            $this->assertNotEmpty($card->getBrand(), 'Brand was recognized');
-            $this->assertNotEmpty($card->getLastDigits(), 'Last digits were returned');
+            $this->assertInstanceOf('AceitaFacil\Entity\Card', $card, 'Object is a card');
+            $this->assertNotEmpty($card->token, 'Token was received');
+            $this->assertNotEmpty($card->brand, 'Brand was recognized');
+            $this->assertNotEmpty($card->last_digits, 'Last digits were returned');
         }
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testDeleteCardNoArguments()
+    public function testDeleteEmptyCard()
     {
         $client = new Client();
         $client->init('test', 'test');
-        $response = $client->deleteCard(null);
+        $card = new Entity\Card();
+        $response = $client->deleteCard($card);
     }
 
     public function testDeleteCard()
@@ -100,6 +108,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
 
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
+        
         $response = $client->deleteCard('1234');
         $this->assertFalse($response->isError(), 'Not an error');
         
@@ -107,8 +116,8 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($cards, 'Objects were filled');
         
         foreach ($cards as $card) {
-            $this->assertInstanceOf('AceitaFacil\Card', $card, 'Object is a card');
-            $this->assertNotEmpty($card->getToken(), 'Token was received');
+            $this->assertInstanceOf('AceitaFacil\Entity\Card', $card, 'Object is a card');
+            $this->assertNotEmpty($card->token, 'Token was received');
             // API doesn't return other card info on removal, we won't test them here
         }
     }

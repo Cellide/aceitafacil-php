@@ -1,6 +1,6 @@
 <?php
 
-namespace AceitaFacil\Tests;
+namespace AceitaFacil\Tests\Integration;
 
 use AceitaFacil\Client;
 

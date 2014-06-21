@@ -22,16 +22,22 @@ class Client
     const PRODUCTION_URL = 'https://api.aceitafacil.com';
     
     /**
+     * Guzzle client
+     * 
      * @var GuzzleHttp\Client
      */
     private $client;
     
     /**
+     * Username/App ID
+     * 
      * @var string
      */
     private $username;
     
     /**
+     * Password/App secret
+     * 
      * @var string
      */
     private $password;
@@ -59,6 +65,7 @@ class Client
      * @param  string    $username    Username (public key)
      * @param  string    $password    Password (private key)
      * @return void
+     * @throws \InvalidArgumentException if not called correctly
      */
     public function init($username, $password)
     {
@@ -76,7 +83,7 @@ class Client
      * @param  string  $endpoint  API endpoint
      * @param  mixed[] $data      Data to be sent
      * @return Response
-     * @throws RuntimeException if not initialized
+     * @throws \RuntimeException if not initialized
      */
     private function request($method, $endpoint, $data = null)
     {
@@ -102,23 +109,22 @@ class Client
     /**
      * Saves a card info
      * 
-     * @param  string $card       Cardholder's name.
-     * @param  string $number     Card's number
-     * @param  string $cvv        Card's CVV
-     * @param  string $exp_date   Card's expiration date, formatted as YYYYMM
-     * @return Response
+     * Card must contain holder's name, number, and expiration date
+     * 
+     * @param  \AceitaFacil\Entity\Card    $card
+     * @return \AceitaFacil\Response
+     * @throws \InvalidArgumentException if not called correctly
      */
-    public function saveCard($name, $number, $cvv, $exp_date)
+    public function saveCard(Entity\Card $card)
     {
-        if (empty($name) || empty($number) || empty($cvv) || empty($exp_date))
+        if (empty($card->name) || empty($card->number) || empty($card->exp_date))
             throw new \InvalidArgumentException('Card info missing');
         
         $data = array(
             'customer[id]' => $this->username,
-            'card[number]' => $number,
-            'card[name]' => $name,
-            'card[cvv]' => $cvv,
-            'card[exp_date]' => $exp_date
+            'card[number]' => $card->number,
+            'card[name]' => $card->name,
+            'card[exp_date]' => $card->exp_date
         );
         return $this->request('POST', '/card', $data);
     }
@@ -138,6 +144,7 @@ class Client
      * 
      * @param  string $token      Card's reference token
      * @return Response
+     * @throws \InvalidArgumentException if not called correctly
      */
     public function deleteCard($token)
     {
@@ -149,5 +156,49 @@ class Client
             'card[token]' => $token
         );
         return $this->request('DELETE', '/card', $data);
+    }
+    
+    /**
+     * Make a payment using a card
+     * 
+     * Card must contain token and CVV
+     * 
+     * @param  Entity\Card       $card
+     * @param  Entity\Customer   $customer
+     * @param  string            $description
+     * @param  float             $total_amount
+     * @param  Entity\Item       $items
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function makePayment(Entity\Card $card, Entity\Customer $customer, $description, $total_amount, $items)
+    {
+        if (empty($card) || empty($card->token) || empty($card->cvv))
+            throw new \InvalidArgumentException('Card info missing');
+        if (empty($customer) || empty($customer->id) || empty($customer->email) || empty($customer->name) || empty($customer->language))
+            throw new \InvalidArgumentException('Customer info missing');
+        if (empty($description))
+            throw new \InvalidArgumentException('Description missing');
+        if (empty($total_amount) || !is_numeric($total_amount) || floatval($total_amount) <= 0)
+            throw new \InvalidArgumentException('Invalid amount');
+        if (empty($items))
+            throw new \InvalidArgumentException('Items missing');
+        
+        $total_amount = intval(floatval($total_amount)*100);
+        $data = array(
+            'customer[id]' => $this->username,
+            'description' => $description,
+            'paymentmethod[id]' => 1,
+            'total_amount' => $total_amount,
+            
+            'card[token]' => $card->token,
+            'card[cvv]' => $card->cvv,
+            
+            'customer[id]' => $customer->id,
+            'customer[email]' => $customer->email,
+            'customer[name]' => $customer->name,
+            'customer[email_language]' => $customer->language,
+        );
+        return $this->request('POST', '/payment', $data);
     }
 }

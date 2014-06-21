@@ -1,6 +1,6 @@
 <?php
 
-namespace AceitaFacil\Tests;
+namespace AceitaFacil\Tests\Unit;
 
 use AceitaFacil\Client,
     GuzzleHttp\Adapter\MockAdapter,
@@ -23,13 +23,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->saveCard('John Doe', '343434343434343', '111', '201705');
+        $response = $client->getAllCards();
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertTrue($response->isError(), 'Is an error');
         $this->assertTrue(($response->getHttpStatus() >= 400), 'Http status >= 400');
-        $this->assertNotEmpty($response->getErrors(), 'Errors were found');
-        $this->assertEmpty($response->getObjects(), 'No parsed entities available');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
     }
     
     public function testDetectResponseErrorNoBody()
@@ -45,13 +49,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->saveCard('John Doe', '343434343434343', '111', '201705');
+        $response = $client->getAllCards();
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertTrue($response->isError(), 'Is an error');
         $this->assertTrue(($response->getHttpStatus() >= 400), 'Http status >= 400');
-        $this->assertNotEmpty($response->getErrors(), 'Errors were found');
-        $this->assertEmpty($response->getObjects(), 'No parsed entities available');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
     }
     
     /**
@@ -70,7 +78,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->saveCard('John Doe', '343434343434343', '111', '201705');
+        $response = $client->getAllCards();
     }
     
     public function testDetectResponseSuccess()
@@ -86,12 +94,16 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->saveCard('John Doe', '343434343434343', '111', '201705');
+        $response = $client->getAllCards();
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertFalse($response->isError(), 'Is not an error');
         $this->assertTrue(($response->getHttpStatus() < 300), 'Http status < 300');
-        $this->assertEmpty($response->getErrors(), 'Errors were not found');
-        $this->assertNotEmpty($response->getObjects(), 'Parsed entities are available');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertNotInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is not an Error');
+        }
     }
 }

@@ -26,13 +26,6 @@ class Response
     private $http_status;
     
     /**
-     * List of error objects
-     * 
-     * @var mixed[]
-     */
-    private $errors;
-    
-    /**
      * Decoded success response body
      * 
      * @var mixed[]
@@ -49,7 +42,7 @@ class Response
     /**
      * Wraps an API response
      * 
-     * @param  GuzzleHttp\Message\ResponseInterface   $response
+     * @param  \GuzzleHttp\Message\ResponseInterface   $response
      * @return self
      */
     public function __construct(\GuzzleHttp\Message\ResponseInterface $response)
@@ -61,17 +54,7 @@ class Response
         }
         catch (\GuzzleHttp\Exception\ParseException $e) { }
         
-        if ($this->isError()) {
-            if (empty($this->body) || !isset($this->body['errors'])) {
-                $this->errors[] = array('message' => "Error $this->http_status", 'name' => 'INVALID REQUEST', 'at' => '');
-            } else {
-                foreach ($this->body['errors'] as $error) {
-                    $this->errors[] = $error;
-                }
-            }
-        } else {
-            $this->parse();
-        }
+        $this->parse();
     }
     
     /**
@@ -81,10 +64,27 @@ class Response
      */
     private function parse()
     {
-        if (isset($this->body['card'])) {
+        if ($this->isError()) {
+            // error parsing
+            if (empty($this->body) || !isset($this->body['errors'])) {
+                // response body isn't an error object, return a custom one
+                $error = new Entity\Error();
+                $error->message = "Error $this->http_status";
+                $error->name = "INVALID REQUEST";
+                $error->at = "";
+                $this->objects[] = $error;
+            } else {
+                // parse error
+                $errors = $this->body['errors'];
+                foreach ($errors as $error) {
+                    $this->objects[] = Entity\Error::parse($error);
+                }
+            }
+        } else if (isset($this->body['card'])) {
+            // card parsing
             $cards = $this->body['card'];
             foreach ($cards as $card) {
-                $this->objects[] = new Card($card);
+                $this->objects[] = Entity\Card::parse($card);
             }
         } else {
             throw new \RuntimeException('Could not recognize response type');
@@ -119,15 +119,5 @@ class Response
     public function getObjects()
     {
         return $this->objects;
-    }
-    
-    /**
-     * Returns all errors
-     * 
-     * @return mixed[]
-     */
-    public function getErrors()
-    {
-        return $this->errors;
     }
 }

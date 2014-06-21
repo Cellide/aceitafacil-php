@@ -1,6 +1,6 @@
 <?php
 
-namespace AceitaFacil\Tests;
+namespace AceitaFacil\Tests\Unit;
 
 use AceitaFacil\Client,
     GuzzleHttp\Adapter\MockAdapter,
@@ -23,7 +23,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testNoInit()
     {
         $client = new Client();
-        $response = $client->saveCard('John Doe', '1111111111111111', '111', '201705');
+        $response = $client->getAllCards();
     }
     
     /**
