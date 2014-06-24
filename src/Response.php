@@ -86,6 +86,9 @@ class Response
             foreach ($cards as $card) {
                 $this->objects[] = Entity\Card::parse($card);
             }
+        } else if (isset($this->body['paymentmethod'])) {
+            // payment parsing
+            $this->objects[] = Entity\Payment::parse($this->body);
         } else {
             throw new \RuntimeException('Could not recognize response type');
         }

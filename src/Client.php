@@ -167,7 +167,7 @@ class Client
      * @param  Entity\Customer   $customer
      * @param  string            $description
      * @param  float             $total_amount
-     * @param  Entity\Item       $items
+     * @param  Entity\Item[]     $items
      * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
@@ -181,12 +181,12 @@ class Client
             throw new \InvalidArgumentException('Description missing');
         if (empty($total_amount) || !is_numeric($total_amount) || floatval($total_amount) <= 0)
             throw new \InvalidArgumentException('Invalid amount');
-        if (empty($items))
+        if (!is_array($items) || empty($items))
             throw new \InvalidArgumentException('Items missing');
         
         $total_amount = intval(floatval($total_amount)*100);
+        
         $data = array(
-            'customer[id]' => $this->username,
             'description' => $description,
             'paymentmethod[id]' => 1,
             'total_amount' => $total_amount,
@@ -199,6 +199,19 @@ class Client
             'customer[name]' => $customer->name,
             'customer[email_language]' => $customer->language,
         );
+        
+        for ($i = 0; $i < count($items); $i++) {
+            $item_data = array();
+            $item_amount = intval(floatval($items[$i]->amount)*100);
+            $item_data["item[$i][amount]"] = $item_amount;
+            $item_data["item[$i][vendor_id]"] = $items[$i]->vendor->id;
+            $item_data["item[$i][vendor_name]"] = $items[$i]->vendor->name;
+            $item_data["item[$i][fee_split]"] = $items[$i]->fee_split;
+            $item_data["item[$i][description]"] = $items[$i]->description;
+            $item_data["item[$i][trigger_lock]"] = $items[$i]->trigger_lock;
+            $data = array_merge($data, $item_data);
+        }
+        
         return $this->request('POST', '/payment', $data);
     }
 }
