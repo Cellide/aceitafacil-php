@@ -197,7 +197,7 @@ class Client
             'customer[id]' => $customer->id,
             'customer[email]' => $customer->email,
             'customer[name]' => $customer->name,
-            'customer[email_language]' => $customer->language,
+            'customer[email_language]' => $customer->language
         );
         
         for ($i = 0; $i < count($items); $i++) {
@@ -213,5 +213,23 @@ class Client
         }
         
         return $this->request('POST', '/payment', $data);
+    }
+
+    /**
+     * Get info about a payment
+     * 
+     * @param  string    $payment_id    A Payment transaction ID returned by {makePayment}
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function getPayment($payment_id)
+    {
+        if (empty($payment_id))
+            throw new \InvalidArgumentException('Payment info missing');
+        
+        $data = array(
+            'invoice[id]' => $payment_id,
+        );
+        return $this->request('GET', '/payment', $data);
     }
 }
