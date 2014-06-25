@@ -27,8 +27,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testDetectResponseSuccess()
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
-        $response = $client->getVendor($_ENV['APPID']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        $response = $client->getVendor(getenv('APPID'));
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertFalse($response->isError(), 'Is not an error');

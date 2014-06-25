@@ -7,10 +7,13 @@
     <testsuite name="integration">
       <directory>tests/integration</directory>
     </testsuite>
+    <testsuite name="travis">
+	  <file>tests/integration/EnvironmentTest.php</file>
+	</testsuite>
   </testsuites>
   <logging>
 		<log type="testdox-html" target="tests/docs/testdox.html" />
-		<log type="coverage-html" target="tests/docs/coverage" charset="UTF-8" />
+		<!-- log type="coverage-html" target="tests/docs/coverage" charset="UTF-8" /-->
   </logging>
   <filter>
     <whitelist>

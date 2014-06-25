@@ -4,8 +4,12 @@ php:
 before_script:
 - composer install
 script:
+- phpunit --testsuite unit
+- phpunit --testsuite travis
 - phpunit --testsuite integration
 env:
   global:
   - secure: XTDL4WxfsGGVyCPAhp2sWsLLrWufUTDPJ0nwiUpZEmd14D/2D/lS5WsXPJwe3Cend0EHn5IgpmeepDVbSpwKbVINKJOupw1LOB3dVDZ8+pO86EVSFrTcPIfJjcb4DXPD6Xf6NlPzkMayMwi8De9JHZaNgipYBdHYJh/KjSwswu0=
   - secure: tBazD2ZCgj9gAOvxYz6mp/ojYeU4vnvZRhgehUAeg3Qc9U856tmzed8F20EEWI5yAHUWOlHAlG+6JIZ3A8eIcVrxx3HxdeDTBZChKJelubKqyJ8BqoGeoE7qNoYiUDjyu0ikgQxI/hkNmbzb83pkavYRjipXcJTtt5XlO9HHfa0=
+matrix:
+  fast_finish: true

@@ -10,7 +10,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
     public function testSaveCard()
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
         
         $customer = new Entity\Customer();
         $customer->id = 1;
@@ -42,7 +42,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
     public function testGetAllCards($original_card)
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
         
         $response = $client->getAllCards("1");
         $this->assertFalse($response->isError(), 'Not an error');
@@ -73,7 +73,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
     public function testDeleteCard($card_token)
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
         
         $customer = new Entity\Customer();
         $customer->id = 1;

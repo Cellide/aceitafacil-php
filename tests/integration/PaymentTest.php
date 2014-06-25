@@ -11,7 +11,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
     public function testMakeCardPayment()
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
         
         // we need to save a card first
         
@@ -27,7 +27,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $card->exp_date = "205001";
         
         $vendor = new Entity\Vendor();
-        $vendor->id = $_ENV['APPID'];
+        $vendor->id = getenv('APPID');
         $vendor->name = 'Acme';
         
         $response = $client->saveCard($customer, $card);
@@ -81,7 +81,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
     public function testGetCardPaymentInfo($original_payment)
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
         
         $response = $client->getPayment($original_payment->id);
         $this->assertFalse($response->isError(), 'Not an error');
@@ -95,7 +95,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
     public function testMakeBillPayment()
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
  
         $customer = new Entity\Customer();
         $customer->id = 1;
@@ -104,7 +104,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $customer->language = 'EN';
         
         $vendor = new Entity\Vendor();
-        $vendor->id = $_ENV['APPID'];
+        $vendor->id = getenv('APPID');
         $vendor->name = 'Acme';
         
         // making a payment
@@ -154,7 +154,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
     public function testMakePaymentChargeError($first_payment)
     {
         $client = new Client(true);
-        $client->init($_ENV['APPID'], $_ENV['APPSECRET']);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
  
         $customer = new Entity\Customer();
         $customer->id = 1;
@@ -163,7 +163,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $customer->language = 'EN';
         
         $vendor = new Entity\Vendor();
-        $vendor->id = $_ENV['APPID'];
+        $vendor->id = getenv('APPID');
         $vendor->name = 'Acme';
         
         // first we need to get a usable Card
