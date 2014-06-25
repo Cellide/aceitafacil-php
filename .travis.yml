@@ -7,5 +7,6 @@ script:
   - phpunit --testsuite unit
   - phpunit --testsuite integration
 env:
-  - secure: zkIfb1lkblO6uimssMFyLn5CeOTTgHGrDLnBWQEQNmKto26n+kXiOVvMOkbxbMHhz42djjgPBI4mSBw/w+8OT7Q6u6nekJx5D8LXRrTlyAkRUR2wIC5GIJA98ESsf4jDtDWLTnhWT5r8JcbCp1fGbSIW0PQBIHCOkGlUAZ+IOGk=
-  - secure: hisAWahBSLNfoJ42zIGjQNza8w3lx1Fhr31GziCc/TuOJSAOz/eBc2d1AjCMxVC0Ak5Yj0+kGTPj3y7C23olhvGtFWoSVDro7g/In10o8+3pIUP8q4rwdm6aWEbhXhdldcHj8ExswyGw75OILHpy6UQ4v/7kGMz8A3Mi9R06laA=
+  globlal:
+    - secure: zkIfb1lkblO6uimssMFyLn5CeOTTgHGrDLnBWQEQNmKto26n+kXiOVvMOkbxbMHhz42djjgPBI4mSBw/w+8OT7Q6u6nekJx5D8LXRrTlyAkRUR2wIC5GIJA98ESsf4jDtDWLTnhWT5r8JcbCp1fGbSIW0PQBIHCOkGlUAZ+IOGk=
+    - secure: hisAWahBSLNfoJ42zIGjQNza8w3lx1Fhr31GziCc/TuOJSAOz/eBc2d1AjCMxVC0Ak5Yj0+kGTPj3y7C23olhvGtFWoSVDro7g/In10o8+3pIUP8q4rwdm6aWEbhXhdldcHj8ExswyGw75OILHpy6UQ4v/7kGMz8A3Mi9R06laA=
