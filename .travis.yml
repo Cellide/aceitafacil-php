@@ -1,12 +1,12 @@
 language: php
 php:
-  - 5.4
+- 5.4
 before_script:
-  - composer install
+- composer install
 script:
-  - phpunit --testsuite unit
-  - phpunit --testsuite integration
+- phpunit --testsuite unit
+- phpunit --testsuite integration
 env:
-  globlal:
-    - secure: zkIfb1lkblO6uimssMFyLn5CeOTTgHGrDLnBWQEQNmKto26n+kXiOVvMOkbxbMHhz42djjgPBI4mSBw/w+8OT7Q6u6nekJx5D8LXRrTlyAkRUR2wIC5GIJA98ESsf4jDtDWLTnhWT5r8JcbCp1fGbSIW0PQBIHCOkGlUAZ+IOGk=
-    - secure: hisAWahBSLNfoJ42zIGjQNza8w3lx1Fhr31GziCc/TuOJSAOz/eBc2d1AjCMxVC0Ak5Yj0+kGTPj3y7C23olhvGtFWoSVDro7g/In10o8+3pIUP8q4rwdm6aWEbhXhdldcHj8ExswyGw75OILHpy6UQ4v/7kGMz8A3Mi9R06laA=
+  global:
+  - secure: QPMq33ut7lOWvwQi6+OpSqDlZRCrkkLqQ/3+zfoakCii+RhZwuy7+Ox5IkEgbk+FNQuiE6dK7IcRyFbOGMEwe0+hrtEcHAfJUXVnJeXMMFXI6/en3OlL7aBBUyY5TacUdhAcEJti2RWDOJwatwfn7vUHfs+WzmQ4JsgHjjX5dco=
+  - secure: Ce+wNBUKKpk4jxwadCcUaeFgHNGt+rNO6olOzpqaDJ5qyz+N17w0UB475yWCQS/3R+s+avk9xHl9K47ExK87D0/XStIx3OesZsE5y8B+hv2aAoacRVcFrgHgZSZndWb+v6BgLORraNmJs//bDfIGqFYu4CFljlD6s4Hv+Rwr3/I=
