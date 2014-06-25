@@ -4,9 +4,8 @@ php:
 before_script:
 - composer install
 script:
-- phpunit --testsuite unit
 - phpunit --testsuite integration
 env:
   global:
-  - secure: QPMq33ut7lOWvwQi6+OpSqDlZRCrkkLqQ/3+zfoakCii+RhZwuy7+Ox5IkEgbk+FNQuiE6dK7IcRyFbOGMEwe0+hrtEcHAfJUXVnJeXMMFXI6/en3OlL7aBBUyY5TacUdhAcEJti2RWDOJwatwfn7vUHfs+WzmQ4JsgHjjX5dco=
-  - secure: Ce+wNBUKKpk4jxwadCcUaeFgHNGt+rNO6olOzpqaDJ5qyz+N17w0UB475yWCQS/3R+s+avk9xHl9K47ExK87D0/XStIx3OesZsE5y8B+hv2aAoacRVcFrgHgZSZndWb+v6BgLORraNmJs//bDfIGqFYu4CFljlD6s4Hv+Rwr3/I=
+  - secure: XTDL4WxfsGGVyCPAhp2sWsLLrWufUTDPJ0nwiUpZEmd14D/2D/lS5WsXPJwe3Cend0EHn5IgpmeepDVbSpwKbVINKJOupw1LOB3dVDZ8+pO86EVSFrTcPIfJjcb4DXPD6Xf6NlPzkMayMwi8De9JHZaNgipYBdHYJh/KjSwswu0=
+  - secure: tBazD2ZCgj9gAOvxYz6mp/ojYeU4vnvZRhgehUAeg3Qc9U856tmzed8F20EEWI5yAHUWOlHAlG+6JIZ3A8eIcVrxx3HxdeDTBZChKJelubKqyJ8BqoGeoE7qNoYiUDjyu0ikgQxI/hkNmbzb83pkavYRjipXcJTtt5XlO9HHfa0=
