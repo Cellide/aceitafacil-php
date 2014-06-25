@@ -4,9 +4,12 @@ php:
 before_script:
 - composer install
 script:
-- phpunit --testsuite unit
+- mkdir -p build/logs
+- phpunit --testsuite unit --coverage-clover build/logs/clover.xml
 - phpunit --testsuite travis
 - phpunit --testsuite integration
+after_script:
+- php vendor/bin/coveralls -v
 env:
   global:
   - secure: XTDL4WxfsGGVyCPAhp2sWsLLrWufUTDPJ0nwiUpZEmd14D/2D/lS5WsXPJwe3Cend0EHn5IgpmeepDVbSpwKbVINKJOupw1LOB3dVDZ8+pO86EVSFrTcPIfJjcb4DXPD6Xf6NlPzkMayMwi8De9JHZaNgipYBdHYJh/KjSwswu0=

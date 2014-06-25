@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/Cellide/aceitafacil-php.svg?branch=master)](https://travis-ci.org/Cellide/aceitafacil-php)
+[![Coverage Status](https://img.shields.io/coveralls/Cellide/aceitafacil-php.svg)](https://coveralls.io/r/Cellide/aceitafacil-php)
 
-Select Language: **English**, [Portuguese](../blob/master/README-pt.md)
+Select Language: **English**, [Portuguese](../master/README-pt.md)
 
 aceitafacil-php
 ===================
