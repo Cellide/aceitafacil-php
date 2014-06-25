@@ -1,7 +1,7 @@
 {
     "name": "cellide/aceitafacil-php",
-    "description": "PHP wrapper for AceitaFácil payments",
-    "version": "0.9.0-beta",
+    "description": "PHP SDK for AceitaFacil payments",
+    "version": "0.9.1-beta",
     "type": "library",
     "keywords": ["aceitafacil"],
     "homepage": "https://github.com/cellide/aceitafacil-php",
