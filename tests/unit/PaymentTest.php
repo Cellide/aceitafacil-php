@@ -44,7 +44,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'Random purchase';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
     }
     
     /**
@@ -78,7 +78,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'Random purchase';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
     }
     
     /**
@@ -116,7 +116,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = '';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
     }
 
     /**
@@ -154,7 +154,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'random purchase';
         $total_amount = 0;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
     }
 
     /**
@@ -164,10 +164,6 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
     {
         $client = new Client(true);
         $client->init('test', 'test');
-        
-        $card = new Entity\Card();
-        $card->token = '1234567';
-        $card->cvv = '123';
         
         $customer = new Entity\Customer();
         $customer->id = 1;
@@ -182,10 +178,10 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'random purchase';
         $total_amount = 5.5;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, array());
+        $response = $client->makePayment($customer, $description, $total_amount, array());
     }
     
-    public function testMakePayment()
+    public function testMakeCardPayment()
     {
         // mock API response
         $mock_adapter = new MockAdapter(function ($trans) {
@@ -262,7 +258,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'Random purchase';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $payments = $response->getObjects();
@@ -331,7 +327,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'Random purchase';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($card, $customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
         $this->assertTrue($response->isError(), 'Is an error');
         $this->assertEquals(402, $response->getHttpStatus(), 'HTTP Status 402 returned');
         
@@ -429,5 +425,117 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $client->init('test', 'test');
         
         $response = $client->getPayment('');
+    }
+    
+    public function testMakeBillPayment()
+    {
+        // mock API response
+        $mock_adapter = new MockAdapter(function ($trans) {
+            $factory = new MessageFactory();
+            $response = $factory->createResponse(200, array(),
+                            '{"id":"ab123456",
+                              "organization_id":"1234",
+                              "organization_name":"Acme",
+                              "customer_id":"1",
+                              "customer_name":"John Doe",
+                              "description":"random purchase",
+                              "customer_email":"johndoe@acme.com",
+                              "chargetype":"AVISTA",
+                              "paymentmethod":"BOLETO",
+                              "payer":"CUSTOMER",
+                              "attempt_count":0,
+                              "attempted":false,
+                              "closed":false,
+                              "paid":false,
+                              "period_start":"2014-06-24 00:00:00",
+                              "period_end":"2014-06-24 00:00:00",
+                              "total_amount":500,
+                              "next_charge_attempt":null,
+                              "items":[
+                                    {"id":"item_1",
+                                     "vendor_id":"1234",
+                                     "vendor_name":"Acme",
+                                     "provider_id":"1234",
+                                     "provider_name":"Acme",
+                                     "amount":456,
+                                     "description":"Item 1",
+                                     "trigger_lock":false },
+                                    {"id":"item_2",
+                                    "vendor_id":"aaaa",
+                                    "vendor_name":"aceitaFacil",
+                                    "provider_id":"aaaa",
+                                    "provider_name":"aceitaFacil",
+                                    "amount":44,
+                                    "description":"Tarifa aceitaFacil",
+                                    "trigger_lock":false}
+                                    ],
+                               "boleto":{
+                                    "hash":"1234",
+                                    "due_date":"2014-06-24",
+                                    "url":"http:\/\/sandbox.boleto.aceitafacil.com\/1"
+                               }
+                              }'
+                        );
+            return $response;
+        });
+        
+        $client = new Client(true, $mock_adapter);
+        $client->init('test', 'test');
+        
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        $customer->name = 'John Doe';
+        $customer->email = 'johndoe@mailinator.com';
+        $customer->language = 'EN';
+        
+        $vendor = new Entity\Vendor();
+        $vendor->id = '1234';
+        $vendor->name = 'Acme';
+        
+        $items = array();
+        $item1 = new Entity\Item();
+        $item1->id = 10;
+        $item1->description = 'Razor blade';
+        $item1->amount = 5;
+        $item1->vendor = $vendor;
+        $item1->fee_split = 1;
+        $item1->trigger_lock = false;
+        $items[] = $item1;
+        
+        $description = 'Random purchase';
+        $total_amount = $item1->amount;
+        
+        $response = $client->makePayment($customer, $description, $total_amount, $items);
+        $this->assertFalse($response->isError(), 'Not an error');
+        
+        $payments = $response->getObjects();
+        $this->assertNotEmpty($payments, 'Objects were filled');
+        
+        $payment = $payments[0];
+        $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
+        $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertNotEmpty($payment->description, 'Description found');
+        $this->assertNotEmpty($payment->charge_type, 'Charge type found');
+        $this->assertNotEmpty($payment->payment_method, 'Payment method found');
+        $this->assertGreaterThanOrEqual(0, $payment->attempt_count, 'Attempts count ok');
+        $this->assertFalse($payment->paid, 'Actual payment was made');
+        $this->assertInstanceOf('DateTime', $payment->period_start, 'Start period parsed');
+        $this->assertInstanceOf('DateTime', $payment->period_end, 'End period parsed');
+        $this->assertEmpty($payment->next_charge_attempt, 'There is no next charge attempt');
+        
+        $this->assertNotEmpty($payment->organization, 'Organization found');
+        $this->assertInstanceOf('AceitaFacil\Entity\Vendor', $payment->organization, 'Organization is a Vendor');
+        
+        $this->assertNotEmpty($payment->customer, 'Customer found');
+        $this->assertInstanceOf('AceitaFacil\Entity\Customer', $payment->customer, 'Customer is ok');
+        
+        $this->assertNotEmpty($payment->items, 'Items were found');
+        $this->assertInstanceOf('AceitaFacil\Entity\Item', $payment->items[0], 'Items array consist of Item objects');
+        
+        $this->assertNotEmpty($payment->bill, 'Payment Bill was found');
+        $this->assertInstanceOf('AceitaFacil\Entity\Bill', $payment->bill, 'Bill is ok');
+        $this->assertNotEmpty($payment->bill->hash, 'Bill hash parsed');
+        $this->assertNotEmpty($payment->bill->url, 'Bill URL parsed');
+        $this->assertInstanceOf('DateTime', $payment->bill->due_date, 'Bill due date parsed');
     }
 }

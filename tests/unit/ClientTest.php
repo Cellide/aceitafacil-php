@@ -23,7 +23,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testNoInit()
     {
         $client = new Client();
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
     }
     
     /**

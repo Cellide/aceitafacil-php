@@ -107,21 +107,24 @@ class Client
     }
     
     /**
-     * Saves a card info
+     * Saves a Customer's Card info
      * 
      * Card must contain holder's name, number, and expiration date
      * 
-     * @param  \AceitaFacil\Entity\Card    $card
-     * @return \AceitaFacil\Response
+     * @param  \AceitaFacil\Entity\Customer  $customer
+     * @param  \AceitaFacil\Entity\Card      $card
+     * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
-    public function saveCard(Entity\Card $card)
+    public function saveCard(Entity\Customer $customer, Entity\Card $card)
     {
+        if (empty($customer->id))
+            throw new \InvalidArgumentException('Customer info missing');
         if (empty($card->name) || empty($card->number) || empty($card->exp_date))
             throw new \InvalidArgumentException('Card info missing');
         
         $data = array(
-            'customer[id]' => $this->username,
+            'customer[id]' => $customer->id,
             'card[number]' => $card->number,
             'card[name]' => $card->name,
             'card[exp_date]' => $card->exp_date
@@ -130,29 +133,37 @@ class Client
     }
     
     /**
-     * Get all cards stored
+     * Get all Cards stored for a Customer
      * 
-     * @return Response
-     */
-    public function getAllCards()
-    {
-        return $this->request('GET', '/card');
-    }
-    
-    /**
-     * Delete a stored card
-     * 
-     * @param  string $token      Card's reference token
+     * @param  string       $customer_id
      * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
-    public function deleteCard($token)
+    public function getAllCards($customer_id)
     {
+        if (empty($customer_id))
+            throw new \InvalidArgumentException('Customer info missing');
+        
+        return $this->request('GET', '/card?customer[id]='.$customer_id);
+    }
+    
+    /**
+     * Delete a stored Customer's Card
+     * 
+     * @param  \AceitaFacil\Entity\Customer  $customer
+     * @param  string                        $token       Card's reference token
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function deleteCard(Entity\Customer $customer, $token)
+    {
+        if (empty($customer->id))
+            throw new \InvalidArgumentException('Customer info missing');
         if (empty($token))
             throw new \InvalidArgumentException('Card token missing');
         
         $data = array(
-            'customer[id]' => $this->username,
+            'customer[id]' => $customer->id,
             'card[token]' => $token
         );
         return $this->request('DELETE', '/card', $data);
@@ -163,17 +174,17 @@ class Client
      * 
      * Card must contain token and CVV
      * 
-     * @param  Entity\Card       $card
      * @param  Entity\Customer   $customer
      * @param  string            $description
      * @param  float             $total_amount
      * @param  Entity\Item[]     $items
+     * @param  Entity\Card       $card           If not supplied, bill payment will be used
      * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
-    public function makePayment(Entity\Card $card, Entity\Customer $customer, $description, $total_amount, $items)
+    public function makePayment(Entity\Customer $customer, $description, $total_amount, $items, Entity\Card $card = null)
     {
-        if (empty($card) || empty($card->token) || empty($card->cvv))
+        if (!empty($card) && (empty($card->token) || empty($card->cvv)))
             throw new \InvalidArgumentException('Card info missing');
         if (empty($customer) || empty($customer->id) || empty($customer->email) || empty($customer->name) || empty($customer->language))
             throw new \InvalidArgumentException('Customer info missing');
@@ -185,20 +196,25 @@ class Client
             throw new \InvalidArgumentException('Items missing');
         
         $total_amount = intval(floatval($total_amount)*100);
+        $payment_method = (!empty($card)) ? 1 : 2;
         
         $data = array(
             'description' => $description,
-            'paymentmethod[id]' => 1,
+            'paymentmethod[id]' => $payment_method,
             'total_amount' => $total_amount,
-            
-            'card[token]' => $card->token,
-            'card[cvv]' => $card->cvv,
             
             'customer[id]' => $customer->id,
             'customer[email]' => $customer->email,
             'customer[name]' => $customer->name,
             'customer[email_language]' => $customer->language
         );
+        if ($payment_method === 1) {
+            $card_data = array(
+                'card[token]' => $card->token,
+                'card[cvv]' => $card->cvv,
+            );
+            $data = array_merge($data, $card_data);
+        }
         
         for ($i = 0; $i < count($items); $i++) {
             $item_data = array();
@@ -208,7 +224,7 @@ class Client
             $item_data["item[$i][vendor_name]"] = $items[$i]->vendor->name;
             $item_data["item[$i][fee_split]"] = $items[$i]->fee_split;
             $item_data["item[$i][description]"] = $items[$i]->description;
-            $item_data["item[$i][trigger_lock]"] = $items[$i]->trigger_lock;
+            $item_data["item[$i][trigger_lock]"] = ($items[$i]->trigger_lock == true) ? 1 : 0;
             $data = array_merge($data, $item_data);
         }
         
@@ -227,9 +243,21 @@ class Client
         if (empty($payment_id))
             throw new \InvalidArgumentException('Payment info missing');
         
-        $data = array(
-            'invoice[id]' => $payment_id,
-        );
-        return $this->request('GET', '/payment', $data);
+        return $this->request('GET', '/payment?invoice[id]='.$payment_id);
+    }
+    
+    /**
+     * Get info about a vendor
+     * 
+     * @param  string    $vendor_id    A vendor ID
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function getVendor($vendor_id)
+    {
+        if (empty($vendor_id))
+            throw new \InvalidArgumentException('Payment info missing');
+        
+        return $this->request('GET', '/vendor?vendor[id]='.$vendor_id);
     }
 }

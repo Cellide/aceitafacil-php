@@ -23,7 +23,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertTrue($response->isError(), 'Is an error');
@@ -49,7 +49,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertTrue($response->isError(), 'Is an error');
@@ -78,7 +78,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
     }
     
     public function testDetectResponseSuccess()
@@ -94,7 +94,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
         
         $this->assertInstanceOf('AceitaFacil\Response', $response, 'Received a response');
         $this->assertFalse($response->isError(), 'Is not an error');

@@ -121,6 +121,13 @@ class Payment
     public $items;
     
     /**
+     * Related payment bill, if it was requested
+     * 
+     * @var Bill
+     */
+    public $bill;
+    
+    /**
      * Parses a JSON object into a Payment response
      * 
      * @param  mixed[]  $json
@@ -146,16 +153,17 @@ class Payment
         $entity->organization->id = isset($json['organization_id']) ? $json['organization_id'] : null;
         $entity->organization->name = isset($json['organization_name']) ? $json['organization_name'] : null;
         
-        $entity->customer = new Customer();
-        $entity->customer->id = isset($json['customer_id']) ? $json['customer_id'] : null;
-        $entity->customer->name = isset($json['customer_name']) ? $json['customer_name'] : null;
-        $entity->customer->email = isset($json['customer_email']) ? $json['customer_email'] : null;
+        $entity->customer = Customer::parse($json);
         
         $entity->items = array();
         if (isset($json['items']) && !empty($json['items'])) {
             foreach ($json['items'] as $item_data) {
                 $entity->items[] = Item::parse($item_data);
             }
+        }
+        
+        if (!empty($json['boleto'])) {
+            $entity->bill = Bill::parse($json['boleto']);
         }
 
         return $entity;

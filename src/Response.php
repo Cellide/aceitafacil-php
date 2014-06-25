@@ -89,6 +89,9 @@ class Response
         } else if (isset($this->body['paymentmethod'])) {
             // payment parsing
             $this->objects[] = Entity\Payment::parse($this->body);
+        } else if (isset($this->body['vendor'])) {
+            // vendor parsing
+            $this->objects[] = Entity\Vendor::parse($this->body['vendor']);
         } else {
             throw new \RuntimeException('Could not recognize response type');
         }

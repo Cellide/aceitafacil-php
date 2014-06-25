@@ -16,10 +16,14 @@ class CardTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveEmptyCard()
     {
-        $client = new Client();
+        $client = new Client(true);
         $client->init('test', 'test');
+        
+        $customer = new Entity\Customer();
+        $customer->id = 1;
         $card = new Entity\Card();
-        $response = $client->saveCard($card);
+        
+        $response = $client->saveCard($customer, $card);
     }
     
     public function testSaveCard()
@@ -36,12 +40,14 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $card_number = '343434343434343';
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
+        $customer = new Entity\Customer();
+        $customer->id = 1;
         $card = new Entity\Card();
         $card->name = 'John Doe';
         $card->number = $card_number;
         $card->exp_date = '201705';
         
-        $response = $client->saveCard($card);
+        $response = $client->saveCard($customer, $card);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $cards = $response->getObjects();
@@ -70,7 +76,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
 
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
-        $response = $client->getAllCards();
+        $response = $client->getAllCards("1");
         $this->assertFalse($response->isError(), 'Not an error');
         
         $cards = $response->getObjects();
@@ -91,8 +97,9 @@ class CardTest extends \PHPUnit_Framework_TestCase
     {
         $client = new Client();
         $client->init('test', 'test');
-        $card = new Entity\Card();
-        $response = $client->deleteCard($card);
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        $response = $client->deleteCard($customer, '');
     }
 
     public function testDeleteCard()
@@ -109,7 +116,10 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $client = new Client(true, $mock_adapter);
         $client->init('test', 'test');
         
-        $response = $client->deleteCard('1234');
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        
+        $response = $client->deleteCard($customer, '1234');
         $this->assertFalse($response->isError(), 'Not an error');
         
         $cards = $response->getObjects();
