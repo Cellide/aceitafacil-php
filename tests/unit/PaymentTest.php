@@ -449,7 +449,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
                               "paid":false,
                               "period_start":"2014-06-24 00:00:00",
                               "period_end":"2014-06-24 00:00:00",
-                              "total_amount":500,
+                              "total_amount":900,
                               "next_charge_attempt":null,
                               "items":[
                                     {"id":"item_1",
@@ -457,7 +457,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
                                      "vendor_name":"Acme",
                                      "provider_id":"1234",
                                      "provider_name":"Acme",
-                                     "amount":456,
+                                     "amount":856,
                                      "description":"Item 1",
                                      "trigger_lock":false },
                                     {"id":"item_2",
@@ -496,7 +496,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $item1 = new Entity\Item();
         $item1->id = 10;
         $item1->description = 'Razor blade';
-        $item1->amount = 5;
+        $item1->amount = 9;
         $item1->vendor = $vendor;
         $item1->fee_split = 1;
         $item1->trigger_lock = false;

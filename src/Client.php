@@ -46,7 +46,7 @@ class Client
      * Client contructor
      * 
      * @param  bool   $is_sandbox     If true, sandobox environment is used. Default: false.
-     * @param  mixed  $mock_adapter    Optionally use this \GuzzleHttp\Adapter\MockAdapter for requests
+     * @param  mixed  $mock_adapter   Optionally use this \GuzzleHttp\Adapter\MockAdapter for requests
      * @return self
      */
     public function __construct($is_sandbox = false, $mock_adapter = null)
@@ -334,6 +334,9 @@ class Client
     /**
      * Get info about an Item in an invoice
      * 
+     * Both $payment_id and $item_id are the ID hashes found in the
+     * response from the makePayment() and getPayment() methods
+     * 
      * @param  string    $payment_id    A payment transaction ID
      * @param  string    $item_id       An Item ID
      * @return Response
@@ -351,7 +354,9 @@ class Client
      * Update an Item info in an invoice
      * 
      * The only updateable info is an Item's vendor ID and trigger_lock,
-     * everything else is ignored
+     * everything else is ignored.
+     * Both $payment_id and $item->id are the ID hashes found in the
+     * response from the makePayment() and getPayment() methods.
      * 
      * @param  string                    $payment_id    A payment transaction ID
      * @param  \AceitaFacil\Entity\Item  $item          Item to be changed
@@ -370,6 +375,6 @@ class Client
             'item[trigger_lock]' => ($item->trigger_lock == true) ? 1 : 0
         );
         
-        return $this->request('PUT', "/invoice/$payment_id/item/$item_id", $data);
+        return $this->request('PUT', "/invoice/$payment_id/item/$item->id", $data);
     }
 }

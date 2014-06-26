@@ -1,9 +1,9 @@
 {
     "name": "cellide/aceitafacil-php",
-    "description": "PHP SDK for AceitaFacil payments",
-    "version": "0.9.2-beta",
+    "description": "PHP SDK for Aceita Facil payments",
+    "version": "1.0.0",
     "type": "library",
-    "keywords": ["aceitafacil"],
+    "keywords": ["aceitafacil","Aceita Facil"],
     "homepage": "https://github.com/cellide/aceitafacil-php",
     "time": "2014-05-26",
     "license": "MIT",

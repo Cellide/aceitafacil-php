@@ -107,23 +107,41 @@ API Reference
 -------------
 
 ```php
-$client->init();
 
-$client->saveCard();
-$client->getAllCards();
-$client->deleteCard();
-$client->makePayment();
-$client->getPayment();
-$client->getVendor();
-$client->createVendor();
-$client->updateVendor();
-$client->getPaymentItemInfo();
-$client->updatePaymentItemInfo();
+$client = new \AceitaFacil\Client($is_sandbox = false, $mock_adapter = null);
+
+$client->init($username, $password);
+
+$client->saveCard(\AceitaFacil\Entity\Customer $customer, \AceitaFacil\Entity\Card $card);
+
+$client->getAllCards($customer_id);
+
+$client->deleteCard(\AceitaFacil\Entity\Customer $customer, $token);
+
+$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $description, $total_amount, $items, \AceitaFacil\Entity\Entity\Card $card = null);
+
+$client->getPayment($payment_id);
+
+$client->getVendor($vendor_id);
+
+$client->createVendor(\AceitaFacil\Entity\Entity\Vendor $vendor);
+
+$client->updateVendor(\AceitaFacil\Entity\Entity\Vendor $vendor);
+
+$client->getPaymentItemInfo($payment_id, $item_id);
+
+$client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $item);
 
 ```
 
 Changelog
 -------------
+
+- 1.0.0 (2014-06-26):
+  - First stable version
+  - 100% test coverage
+  - Integration tests describe all use cases from the public API (https://aceitafacil.com/docs)
+  - Updated README
 
 - 0.9.2-beta (2014-06-26):
   - All API methods encompassed
