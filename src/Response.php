@@ -92,6 +92,9 @@ class Response
         } else if (isset($this->body['vendor'])) {
             // vendor parsing
             $this->objects[] = Entity\Vendor::parse($this->body['vendor']);
+        } else if (isset($this->body['item'])) {
+            // item parsing
+            $this->objects[] = Entity\Item::parse($this->body['item']);
         } else {
             throw new \RuntimeException('Could not recognize response type');
         }

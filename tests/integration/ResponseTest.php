@@ -40,4 +40,27 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
             $this->assertNotInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is not an Error');
         }
     }
+    
+    public function testResponseErrorInvalidParameters()
+    {
+        $client = new Client(true);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        
+        // API validates a card input token format
+        $response = $client->deleteCard($customer, 'asdffdassdfasdf');
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(400, $response->getHttpStatus(), 'HTTP Status 400 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+            $this->assertNotEmpty($object->message, 'Error message is present');
+            $this->assertNotEmpty($object->name, 'Error name is present');
+            // $error->at exists but is usually returned as an empty string
+        }
+    }
 }

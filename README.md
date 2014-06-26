@@ -114,11 +114,20 @@ $client->getAllCards();
 $client->deleteCard();
 $client->makePayment();
 $client->getPayment();
+$client->getVendor();
+$client->createVendor();
+$client->updateVendor();
+$client->getPaymentItemInfo();
+$client->updatePaymentItemInfo();
+
 ```
 
 Changelog
 -------------
 
+- 0.9.2-beta (2014-06-26):
+  - All API methods encompassed
+  
 - 0.9.1-beta (2014-06-25):
   - Available on [Packagist](https://packagist.org/packages/cellide/aceitafacil-php)
   - New badges

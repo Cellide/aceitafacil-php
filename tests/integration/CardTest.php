@@ -91,4 +91,23 @@ class CardTest extends \PHPUnit_Framework_TestCase
             // API doesn't return other card info on removal, we won't test them here
         }
     }
+    
+    public function testDeleteInexistentCard()
+    {
+        $client = new Client(true);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        
+        $response = $client->deleteCard($customer, 'car_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(404, $response->getHttpStatus(), 'HTTP Status 404 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
+    }
 }

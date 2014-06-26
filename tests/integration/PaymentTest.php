@@ -91,6 +91,22 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
         $this->assertEquals($original_payment->id, $payment->id, 'Transaction ID found is the same passed');
     }
+    
+    public function testPaymentInfoNotFound()
+    {
+        $client = new Client(true);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        
+        $response = $client->getPayment('inv_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(404, $response->getHttpStatus(), 'HTTP Status 404 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
+    }
 
     public function testMakeBillPayment()
     {

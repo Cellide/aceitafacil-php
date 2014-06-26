@@ -114,11 +114,20 @@ $client->getAllCards();
 $client->deleteCard();
 $client->makePayment();
 $client->getPayment();
+$client->getVendor();
+$client->createVendor();
+$client->updateVendor();
+$client->getPaymentItemInfo();
+$client->updatePaymentItemInfo();
+
 ```
 
 Changelog
 -------------
 
+- 0.9.2-beta (2014-06-26):
+  - Todos os métodos da API pública estão disponíveis
+  
 - 0.9.1-beta (2014-06-25):
   - Disponível no [Packagist](https://packagist.org/packages/cellide/aceitafacil-php)
   - Novas badges

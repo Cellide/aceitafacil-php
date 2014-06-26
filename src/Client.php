@@ -69,9 +69,9 @@ class Client
      */
     public function init($username, $password)
     {
-        if (empty($username) || empty($password)) {
+        if (empty($username) || empty($password))
             throw new \InvalidArgumentException('Username and password must be set');
-        }
+
         $this->username = $username;
         $this->password = $password;
     }
@@ -259,5 +259,117 @@ class Client
             throw new \InvalidArgumentException('Payment info missing');
         
         return $this->request('GET', '/vendor?vendor[id]='.$vendor_id);
+    }
+    
+    /**
+     * Create a Vendor
+     * 
+     * If Vendor contains a Bank, the first (and only the first)
+     * will be saved as well
+     * 
+     * @param  \AceitaFacil\Entity\Vendor    $vendor
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function createVendor(Entity\Vendor $vendor)
+    {
+        return $this->upsertVendor($vendor, 'POST');
+    }
+    
+    /**
+     * Update a Vendor info
+     * 
+     * If Vendor contains a Bank, the first (and only the first)
+     * will be saved as well
+     * 
+     * @param  \AceitaFacil\Entity\Vendor    $vendor
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function updateVendor(Entity\Vendor $vendor)
+    {
+        return $this->upsertVendor($vendor, 'PUT');
+    }
+    
+    /**
+     * Upsert a Vendor info
+     * 
+     * If Vendor contains a Bank, the first (and only the first)
+     * will be saved as well
+     * 
+     * @param  \AceitaFacil\Entity\Vendor    $vendor
+     * @param  string                        $method   POST for insert, PUT for update
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    private function upsertVendor(Entity\Vendor $vendor, $method)
+    {
+        if (empty($vendor->id) || empty($vendor->email) || empty($vendor->name))
+            throw new \InvalidArgumentException('Customer info missing');
+        if (empty($method) || ($method != 'POST' && $method != 'PUT'))
+            throw new \InvalidArgumentException('Request method missing');
+        
+        $data = array(
+            'vendor[id]' => $vendor->id,
+            'vendor[name]' => $vendor->name,
+            'vendor[email]' => $vendor->email
+        );
+        
+        if (!empty($vendor->banks)) {
+            $bank = $vendor->banks[0];
+            $bank_data = array(
+                'vendor[bank][code]' => $bank->code,
+                'vendor[bank][agency]' => $bank->agency,
+                'vendor[bank][account_type]' => ($bank->account_type == 'CC') ? 1 : 2,
+                'vendor[bank][account_number]' => $bank->account_number,
+                'vendor[bank][account_holder_name]' => $bank->account_holder_name,
+                'vendor[bank][account_holder_document_type]' => ($bank->account_holder_document_type == 'CPF') ? 1 : 2,
+                'vendor[bank][account_holder_document_number]' => $bank->account_holder_document_number,
+            );
+            $data = array_merge($data, $bank_data);
+        }
+        return $this->request($method, '/vendor', $data);
+    }
+
+    /**
+     * Get info about an Item in an invoice
+     * 
+     * @param  string    $payment_id    A payment transaction ID
+     * @param  string    $item_id       An Item ID
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function getPaymentItemInfo($payment_id, $item_id)
+    {
+        if (empty($item_id) || empty($payment_id))
+            throw new \InvalidArgumentException('Payment info missing');
+        
+        return $this->request('GET', "/invoice/$payment_id/item/$item_id");
+    }
+
+    /**
+     * Update an Item info in an invoice
+     * 
+     * The only updateable info is an Item's vendor ID and trigger_lock,
+     * everything else is ignored
+     * 
+     * @param  string                    $payment_id    A payment transaction ID
+     * @param  \AceitaFacil\Entity\Item  $item          Item to be changed
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function updatePaymentItemInfo($payment_id, Entity\Item $item)
+    {
+        if (empty($payment_id))
+            throw new \InvalidArgumentException('Payment info missing');
+        if (empty($item->vendor) || empty($item->vendor->id) || !is_bool($item->trigger_lock))
+            throw new \InvalidArgumentException('Item info missing');
+        
+        $data = array(
+            'item[vendor_id]' => $item->vendor->id,
+            'item[trigger_lock]' => ($item->trigger_lock == true) ? 1 : 0
+        );
+        
+        return $this->request('PUT', "/invoice/$payment_id/item/$item_id", $data);
     }
 }
