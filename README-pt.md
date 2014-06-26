@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/Cellide/aceitafacil-php.svg?branch=master)](https://travis-ci.org/Cellide/aceitafacil-php)
 [![Coverage Status](https://img.shields.io/coveralls/Cellide/aceitafacil-php.svg)](https://coveralls.io/r/Cellide/aceitafacil-php)
-[![Latest Stable Version](https://poser.pugx.org/Cellide/aceitafacil-php/v/stable.png)](https://packagist.org/packages/Cellide/aceitafacil-php)
-[![Total Downloads](https://poser.pugx.org/Cellide/aceitafacil-php/downloads.png)](https://packagist.org/packages/Cellide/aceitafacil-php)
-[![License](https://poser.pugx.org/Cellide/aceitafacil-php/license.svg)](https://packagist.org/packages/Cellide/aceitafacil-php)
+[![Latest Stable Version](https://poser.pugx.org/cellide/aceitafacil-php/v/stable.png)](https://packagist.org/packages/Cellide/aceitafacil-php)
+[![Total Downloads](https://poser.pugx.org/cellide/aceitafacil-php/downloads.png)](https://packagist.org/packages/Cellide/aceitafacil-php)
+[![License](https://poser.pugx.org/cellide/aceitafacil-php/license.svg)](https://packagist.org/packages/Cellide/aceitafacil-php)
 
 Select Language: [English](../master/README.md), **Portuguese**
 
