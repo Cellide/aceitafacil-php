@@ -91,9 +91,10 @@ $items[] = $item1;
 $items[] = $item2;
 
 $description = 'Random purchase';
-$total_amount = $item1->amount + $item2->amount;
 
-$response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+$card->cvv = '111'; // include the CVV in a card for payments
+
+$response = $client->makePayment($customer, $items, $description, $card);
 $response->isError(); // false
 $response->getHttpStatus(); // 200
 
@@ -118,7 +119,7 @@ $client->getAllCards($customer_id);
 
 $client->deleteCard(\AceitaFacil\Entity\Customer $customer, $token);
 
-$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $description, $total_amount, $items, \AceitaFacil\Entity\Entity\Card $card = null);
+$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null);
 
 $client->getPayment($payment_id);
 
@@ -136,6 +137,10 @@ $client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $ite
 
 Changelog
 -------------
+
+- 1.1.0 (2014-06-27):
+  - Refatorada assinatura de makePayment() para retirar redundância
+  - Atualizado o README
 
 - 1.0.0 (2014-06-26):
   - Primeira versão estável
