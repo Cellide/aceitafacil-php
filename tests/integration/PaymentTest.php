@@ -62,15 +62,15 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item2;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount + $item2->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
-        $this->assertFalse($response->isError(), 'Not an error');
+        $response = $client->makePayment($customer, $items, $description, $card);
+        $this->assertFalse($response->isError(), 'Not an error - status '.$response->getHttpStatus());
         
         $payments = $response->getObjects();
         $payment = $payments[0];
         $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
         $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount; }), $payment->total_amount, 'Total amount found matches items');
         
         return $payment;
     }
@@ -144,15 +144,15 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item2;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount + $item2->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $items, $description);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $payments = $response->getObjects();
         $payment = $payments[0];
         $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
         $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount; }), $payment->total_amount, 'Total amount found matches items');
         $this->assertNotEmpty($payment->bill, 'Payment bill received');
         $this->assertInstanceOf('AceitaFacil\Entity\Bill', $payment->bill, 'Bill is ok');
         $this->assertNotEmpty($payment->bill->url, 'Payment bill URL found');
@@ -212,9 +212,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item2;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount + $item2->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
         $this->assertTrue($response->isError(), 'Is an error');
         $this->assertEquals(402, $response->getHttpStatus(), 'HTTP Status 402');
         

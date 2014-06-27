@@ -144,6 +144,7 @@ class Payment
         $entity->attempted = isset($json['attempted']) ? ($json['attempted'] == true) : false;
         $entity->closed = isset($json['closed']) ? ($json['closed'] == true) : false;
         $entity->paid = isset($json['paid']) ? ($json['paid'] == true) : false;
+        $entity->total_amount = isset($json['total_amount']) ? floatval($json['total_amount'])/100 : 0;
         
         $entity->period_start = isset($json['period_start']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_start'], new \DateTimeZone('America/Sao_Paulo')) : null;
         $entity->period_end = isset($json['period_end']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_end'], new \DateTimeZone('America/Sao_Paulo')) : null;

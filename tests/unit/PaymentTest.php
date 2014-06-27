@@ -42,9 +42,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
     }
     
     /**
@@ -76,9 +75,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
     }
     
     /**
@@ -114,15 +112,14 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = '';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testMakePaymentNoTotalAmount()
+    public function testMakePaymentTotalAmountEqualsZero()
     {
         $client = new Client(true);
         $client->init('test', 'test');
@@ -145,16 +142,15 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $item1 = new Entity\Item();
         $item1->id = 10;
         $item1->description = 'Razor blade';
-        $item1->amount = 5;
+        $item1->amount = 0;
         $item1->vendor = $vendor;
         $item1->fee_split = 1;
         $item1->trigger_lock = false;
         $items[] = $item1;
         
         $description = 'random purchase';
-        $total_amount = 0;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
     }
 
     /**
@@ -176,9 +172,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $vendor->name = 'Acme';
         
         $description = 'random purchase';
-        $total_amount = 5.5;
         
-        $response = $client->makePayment($customer, $description, $total_amount, array());
+        $response = $client->makePayment($customer, array(), $description);
     }
     
     public function testMakeCardPayment()
@@ -256,9 +251,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $payments = $response->getObjects();
@@ -284,6 +278,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertNotEmpty($payment->items, 'Items were found');
         $this->assertInstanceOf('AceitaFacil\Entity\Item', $payment->items[0], 'Items array consist of Item objects');
+        
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount; }), $payment->total_amount, 'Total amount found matches items');
     }
 
     public function testUnauthorizedPayment()
@@ -325,9 +321,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items, $card);
+        $response = $client->makePayment($customer, $items, $description, $card);
         $this->assertTrue($response->isError(), 'Is an error');
         $this->assertEquals(402, $response->getHttpStatus(), 'HTTP Status 402 returned');
         
@@ -505,7 +500,7 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $description = 'Random purchase';
         $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $items, $description);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $payments = $response->getObjects();
@@ -531,6 +526,8 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertNotEmpty($payment->items, 'Items were found');
         $this->assertInstanceOf('AceitaFacil\Entity\Item', $payment->items[0], 'Items array consist of Item objects');
+        
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount;}), $payment->total_amount, 'Total amount found matches items');
         
         $this->assertNotEmpty($payment->bill, 'Payment Bill was found');
         $this->assertInstanceOf('AceitaFacil\Entity\Bill', $payment->bill, 'Bill is ok');

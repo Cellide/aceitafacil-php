@@ -175,14 +175,13 @@ class Client
      * Card must contain token and CVV
      * 
      * @param  Entity\Customer   $customer
-     * @param  string            $description
-     * @param  float             $total_amount
      * @param  Entity\Item[]     $items
+     * @param  string            $description
      * @param  Entity\Card       $card           If not supplied, bill payment will be used
      * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
-    public function makePayment(Entity\Customer $customer, $description, $total_amount, $items, Entity\Card $card = null)
+    public function makePayment(Entity\Customer $customer, $items, $description, Entity\Card $card = null)
     {
         if (!empty($card) && (empty($card->token) || empty($card->cvv)))
             throw new \InvalidArgumentException('Card info missing');
@@ -190,12 +189,18 @@ class Client
             throw new \InvalidArgumentException('Customer info missing');
         if (empty($description))
             throw new \InvalidArgumentException('Description missing');
-        if (empty($total_amount) || !is_numeric($total_amount) || floatval($total_amount) <= 0)
-            throw new \InvalidArgumentException('Invalid amount');
         if (!is_array($items) || empty($items))
             throw new \InvalidArgumentException('Items missing');
         
+        $total_amount = array_reduce($items, function($sum, $item) {
+            if (!is_numeric($item->amount) || floatval($item->amount) <= 0)
+                throw new \InvalidArgumentException('Invalid item amount');
+            $amount = floatval($item->amount);
+            $sum += $item->amount;
+            return $sum;
+        });
         $total_amount = intval(floatval($total_amount)*100);
+        
         $payment_method = (!empty($card)) ? 1 : 2;
         
         $data = array(

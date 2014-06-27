@@ -39,15 +39,15 @@ class PaymentInfoTest extends \PHPUnit_Framework_TestCase
         $items[] = $item1;
         
         $description = 'Random purchase';
-        $total_amount = $item1->amount;
         
-        $response = $client->makePayment($customer, $description, $total_amount, $items);
+        $response = $client->makePayment($customer, $items, $description);
         $this->assertFalse($response->isError(), 'Not an error');
         
         $payments = $response->getObjects();
         $payment = $payments[0];
         $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
         $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount; }), $payment->total_amount, 'Total amount found matches items');
         $this->assertNotEmpty($payment->items, 'Items were found');
         
         return $payment;
