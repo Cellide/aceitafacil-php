@@ -160,6 +160,65 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         return $payment;
     }
 
+    public function testMakeBillPaymentWithPushEndpoint()
+    {
+        $client = new Client(true);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        $push_endpoint = 'http://cellide.com/fake_endpoint.php';
+        $client->setPushEndpoint($push_endpoint);
+ 
+        $customer = new Entity\Customer();
+        $customer->id = 1;
+        $customer->name = 'John Doe';
+        $customer->email = 'johndoe@mailinator.com';
+        $customer->language = 'EN';
+        
+        $vendor = new Entity\Vendor();
+        $vendor->id = getenv('APPID');
+        $vendor->name = 'Acme';
+        
+        // making a payment
+        
+        $items = array();
+        $item1 = new Entity\Item();
+        $item1->id = 10;
+        $item1->description = 'Razor blade';
+        $item1->amount = 8;
+        $item1->vendor = $vendor;
+        $item1->fee_split = 1;
+        $item1->trigger_lock = false;
+        $item2 = new Entity\Item();
+        $item2->id = 11;
+        $item2->description = 'Band aid';
+        $item2->amount = 4;
+        $item2->vendor = $vendor;
+        $item2->fee_split = 1;
+        $item2->trigger_lock = true;
+        $items[] = $item1;
+        $items[] = $item2;
+        
+        $description = 'Random purchase';
+        $push_code = 'code_'.mt_rand(1,1000);
+        
+        $response = $client->makePayment($customer, $items, $description, null, $push_code);
+        $this->assertFalse($response->isError(), 'Not an error');
+        
+        $payments = $response->getObjects();
+        $payment = $payments[0];
+        $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
+        $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertEquals(array_reduce($items, function ($sum, $item) {return $sum+$item->amount; }), $payment->total_amount, 'Total amount found matches items');
+        $this->assertNotEmpty($payment->bill, 'Payment bill received');
+        $this->assertInstanceOf('AceitaFacil\Entity\Bill', $payment->bill, 'Bill is ok');
+        $this->assertNotEmpty($payment->bill->url, 'Payment bill URL found');
+        $this->assertNotEmpty($payment->callback_url, 'Push endpoint was set');
+        $this->assertEquals($push_endpoint, $payment->callback_url, 'Push endpoint was recognized');
+        $this->assertNotEmpty($payment->callback_code, 'Push code was set');
+        $this->assertEquals($push_code, $payment->callback_code, 'Push code was recognized');
+        
+        return $payment;
+    }
+
     /**
      * Payment resulting in a charge error
      * 

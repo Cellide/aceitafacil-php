@@ -111,6 +111,20 @@ class Payment
     public $period_end;
     
     /**
+     * Push endpoint which will be used by this payment
+     * 
+     * @var string
+     */
+    public $callback_url;
+    
+    /**
+     * Client-defined push endpoint unique code for this payment
+     * 
+     * @var string
+     */
+    public $callback_code;
+    
+    /**
      * Items purchased by this payment
      * 
      * The amount on each Item is the actual amount transfered to that Vendor,
@@ -145,6 +159,8 @@ class Payment
         $entity->closed = isset($json['closed']) ? ($json['closed'] == true) : false;
         $entity->paid = isset($json['paid']) ? ($json['paid'] == true) : false;
         $entity->total_amount = isset($json['total_amount']) ? floatval($json['total_amount'])/100 : 0;
+        $entity->callback_url = isset($json['callback_url']) ? $json['callback_url'] : null;
+        $entity->callback_code = isset($json['callback_code']) ? $json['callback_code'] : null;
         
         $entity->period_start = isset($json['period_start']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_start'], new \DateTimeZone('America/Sao_Paulo')) : null;
         $entity->period_end = isset($json['period_end']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_end'], new \DateTimeZone('America/Sao_Paulo')) : null;

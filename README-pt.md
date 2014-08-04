@@ -41,6 +41,9 @@ O objecto `Client` pode fazer uma requisição a qualquer método da API públic
 $client = new AceitaFacil\Client();
 $client->init('your id', 'your secret');
 
+// set a push endpoint
+$client->setPushEndpoint('https://acme.com/endpoint');
+
 // create a customer for your products
 $customer = new AceitaFacil\Entity\Customer();
 $customer->id = 1;
@@ -113,13 +116,15 @@ $client = new \AceitaFacil\Client($is_sandbox = false, $mock_adapter = null);
 
 $client->init($username, $password);
 
+$client->setPushEndpoint($url);
+
 $client->saveCard(\AceitaFacil\Entity\Customer $customer, \AceitaFacil\Entity\Card $card);
 
 $client->getAllCards($customer_id);
 
 $client->deleteCard(\AceitaFacil\Entity\Customer $customer, $token);
 
-$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null);
+$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null, $push_code = null);
 
 $client->getPayment($payment_id);
 
@@ -137,6 +142,13 @@ $client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $ite
 
 Changelog
 -------------
+
+- 1.2.0 (2014-08-04):
+  - Adicionadas opções de URL e código de callback para notificações de pagamentos
+  - Push endpoint pode ser definido em `setPushEndpoint()`, mais de uma vez, se necessário uma URL por transação
+  - Código único pode ser enviado em `makePayment()` como último (e opcional) parâmetro
+  - Adicionados testes de unidade e integração 
+  - Atualizado o README
 
 - 1.1.0 (2014-06-27):
   - Refatorada assinatura de makePayment() para retirar redundância

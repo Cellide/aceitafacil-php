@@ -43,6 +43,13 @@ class Client
     private $password;
     
     /**
+     * Push Notification endpoint
+     * 
+     * @var string
+     */
+    private $push_endpoint;
+    
+    /**
      * Client contructor
      * 
      * @param  bool   $is_sandbox     If true, sandobox environment is used. Default: false.
@@ -74,6 +81,18 @@ class Client
 
         $this->username = $username;
         $this->password = $password;
+    }
+    
+    /**
+     * Set an endpoint to be used by AceitaFacil's servers when pushing
+     * notifications on payments
+     * 
+     * @param  string    $url     URL for push notifications (HTTPS)
+     * @return void
+     */
+    public function setPushEndpoint($url)
+    {
+        $this->push_endpoint = $url;
     }
     
     /**
@@ -178,10 +197,11 @@ class Client
      * @param  Entity\Item[]     $items
      * @param  string            $description
      * @param  Entity\Card       $card           If not supplied, bill payment will be used
+     * @param  string            $push_code      If supplied, this code will be used by AceitaFacil when pushing notifications about this transaction
      * @return Response
      * @throws \InvalidArgumentException if not called correctly
      */
-    public function makePayment(Entity\Customer $customer, $items, $description, Entity\Card $card = null)
+    public function makePayment(Entity\Customer $customer, $items, $description, Entity\Card $card = null, $push_code = null)
     {
         if (!empty($card) && (empty($card->token) || empty($card->cvv)))
             throw new \InvalidArgumentException('Card info missing');
@@ -219,6 +239,18 @@ class Client
                 'card[cvv]' => $card->cvv,
             );
             $data = array_merge($data, $card_data);
+        }
+        if (!empty($this->push_endpoint)) {
+            $callback_data = array(
+                'callback[url]' => $this->push_endpoint
+            );
+            if (!empty($push_code)) {
+                $callback_code = array(
+                    'callback[code]' => $push_code
+                );
+                $callback_data = array_merge($callback_data, $callback_code);
+            }
+            $data = array_merge($data, $callback_data);
         }
         
         for ($i = 0; $i < count($items); $i++) {

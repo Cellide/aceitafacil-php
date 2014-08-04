@@ -41,4 +41,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client->init('test', 'test');
         $this->assertInstanceOf('AceitaFacil\Client', $client, 'Client appears to be initiated correctly');
     }
+    
+    public function testSetPushEndpoint()
+    {
+        $client = new Client();
+        $client->setPushEndpoint('https://acme.com');
+    }
 }

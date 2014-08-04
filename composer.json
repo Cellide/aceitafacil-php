@@ -1,7 +1,7 @@
 {
     "name": "cellide/aceitafacil-php",
     "description": "PHP SDK for Aceita Facil payments",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "type": "library",
     "keywords": ["aceitafacil","Aceita Facil"],
     "homepage": "https://github.com/cellide/aceitafacil-php",

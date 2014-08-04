@@ -41,6 +41,9 @@ The `Client` object can request everything from the AceitaFacil remote API using
 $client = new AceitaFacil\Client();
 $client->init('your id', 'your secret');
 
+// set a push endpoint
+$client->setPushEndpoint('https://acme.com/endpoint');
+
 // create a customer for your products
 $customer = new AceitaFacil\Entity\Customer();
 $customer->id = 1;
@@ -113,13 +116,15 @@ $client = new \AceitaFacil\Client($is_sandbox = false, $mock_adapter = null);
 
 $client->init($username, $password);
 
+$client->setPushEndpoint($url);
+
 $client->saveCard(\AceitaFacil\Entity\Customer $customer, \AceitaFacil\Entity\Card $card);
 
 $client->getAllCards($customer_id);
 
 $client->deleteCard(\AceitaFacil\Entity\Customer $customer, $token);
 
-$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null);
+$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null, $push_code = null);
 
 $client->getPayment($payment_id);
 
@@ -138,6 +143,13 @@ $client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $ite
 Changelog
 -------------
 
+- 1.2.0 (2014-08-04):
+  - Added callback URL and code options for payment notifications
+  - Push endpoint can be set using `setPushEndpoint()`, multiple times if needed
+  - Unique code can be sent along with `makePayment()` as last, optional parameter
+  - Added unit & integration tests
+  - Updated README
+  
 - 1.1.0 (2014-06-27):
   - Refactored makePayment() signature to remove redudancy
   - Updated README
