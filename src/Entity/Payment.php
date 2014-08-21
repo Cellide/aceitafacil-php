@@ -76,6 +76,13 @@ class Payment
     public $closed;
     
     /**
+     * If payment was refunded
+     * 
+     * @var bool
+     */
+    public $refunded;
+    
+    /**
      * If payment was attempted already
      * 
      * @var bool
@@ -158,6 +165,7 @@ class Payment
         $entity->attempted = isset($json['attempted']) ? ($json['attempted'] == true) : false;
         $entity->closed = isset($json['closed']) ? ($json['closed'] == true) : false;
         $entity->paid = isset($json['paid']) ? ($json['paid'] == true) : false;
+        $entity->refunded = isset($json['refunded']) ? ($json['refunded'] == true) : false;
         $entity->total_amount = isset($json['total_amount']) ? floatval($json['total_amount'])/100 : 0;
         $entity->callback_url = isset($json['callback_url']) ? $json['callback_url'] : null;
         $entity->callback_code = isset($json['callback_code']) ? $json['callback_code'] : null;

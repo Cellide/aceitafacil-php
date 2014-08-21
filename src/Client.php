@@ -414,4 +414,25 @@ class Client
         
         return $this->request('PUT', "/invoice/$payment_id/item/$item->id", $data);
     }
+    
+    /**
+     * Ask for an invoice refund
+     * 
+     * API returns the following HTTP statuses as domain-valid responses:
+     *   200 - Refund OK
+     *   402 - Refund not possible, errors while refunding
+     *   403 - Refund not possible automatically
+     *   404 - No invoice with this ID
+     * 
+     * @param  string                    $payment_id    A payment transaction ID
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function refund($payment_id)
+    {
+        if (empty($payment_id))
+            throw new \InvalidArgumentException('Payment info missing');
+        
+        return $this->request('POST', "/invoice/$payment_id/refund");
+    }
 }

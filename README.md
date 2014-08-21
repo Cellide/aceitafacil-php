@@ -138,10 +138,17 @@ $client->getPaymentItemInfo($payment_id, $item_id);
 
 $client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $item);
 
+$client->refund($payment_id);
+
 ```
 
 Changelog
 -------------
+
+- 1.3.0 (2014-08-21):
+  - Added refund method
+  - Added unit & integration tests
+  - Updated README
 
 - 1.2.0 (2014-08-04):
   - Added callback URL and code options for payment notifications

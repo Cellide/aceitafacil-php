@@ -90,6 +90,27 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $payment = $payments[0];
         $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
         $this->assertEquals($original_payment->id, $payment->id, 'Transaction ID found is the same passed');
+        
+        return $original_payment;
+    }
+
+    /**
+     * @depends testGetCardPaymentInfo
+     */
+    public function testRefund($original_payment)
+    {
+        $client = new Client(true);
+        $client->init(getenv('APPID'), getenv('APPSECRET'));
+        
+        $response = $client->refund($original_payment->id);
+        $this->assertFalse($response->isError(), 'Not an error');
+        
+        $payments = $response->getObjects();
+        $payment = $payments[0];
+        $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
+        $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertEquals($original_payment->id, $payment->id, 'Transaction ID found is the same passed');
+        $this->assertTrue($payment->refunded, 'Refund was done');
     }
     
     public function testPaymentInfoNotFound()

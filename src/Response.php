@@ -95,6 +95,9 @@ class Response
         } else if (isset($this->body['item'])) {
             // item parsing
             $this->objects[] = Entity\Item::parse($this->body['item']);
+        } else if (isset($this->body['refunded'])) {
+            // refund parsing, same as payment
+            $this->objects[] = Entity\Payment::parse($this->body);
         } else {
             throw new \RuntimeException('Could not recognize response type');
         }

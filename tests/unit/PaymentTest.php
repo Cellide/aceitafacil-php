@@ -658,4 +658,113 @@ class PaymentTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($payment->bill->url, 'Bill URL parsed');
         $this->assertInstanceOf('DateTime', $payment->bill->due_date, 'Bill due date parsed');
     }
+
+    public function testRefundUnableToProcess()
+    {
+        // mock API response
+        $mock_adapter = new MockAdapter(function ($trans) {
+            $factory = new MessageFactory();
+            $response = $factory->createResponse(402, array(),
+                            '{"errors":[{"message":"Erros no processo","name":"REFUND ERROR","at":""}]}'
+                        );
+            return $response;
+        });
+        
+        $client = new Client(true, $mock_adapter);
+        $client->init('test', 'test');
+        
+        $payment_id = '1234';
+        
+        $response = $client->refund($payment_id);
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(402, $response->getHttpStatus(), 'HTTP Status 402 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
+    }
+
+    public function testRefundUnableToAutomaticRefund()
+    {
+        // mock API response
+        $mock_adapter = new MockAdapter(function ($trans) {
+            $factory = new MessageFactory();
+            $response = $factory->createResponse(403, array(),
+                            '{"errors":[{"message":"Erros no processo","name":"REFUND ERROR","at":""}]}'
+                        );
+            return $response;
+        });
+        
+        $client = new Client(true, $mock_adapter);
+        $client->init('test', 'test');
+        
+        $payment_id = '1234';
+        
+        $response = $client->refund($payment_id);
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(403, $response->getHttpStatus(), 'HTTP Status 403 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
+    }
+
+    public function testRefundNoInvoice()
+    {
+        // mock API response
+        $mock_adapter = new MockAdapter(function ($trans) {
+            $factory = new MessageFactory();
+            $response = $factory->createResponse(404, array(),
+                            '{"errors":[{"message":"Erros no processo","name":"REFUND ERROR","at":""}]}'
+                        );
+            return $response;
+        });
+        
+        $client = new Client(true, $mock_adapter);
+        $client->init('test', 'test');
+        
+        $payment_id = '1234';
+        
+        $response = $client->refund($payment_id);
+        $this->assertTrue($response->isError(), 'Is an error');
+        $this->assertEquals(404, $response->getHttpStatus(), 'HTTP Status 404 returned');
+        
+        $objects = $response->getObjects();
+        $this->assertNotEmpty($objects, 'Parsed entities available');
+        foreach ($objects as $object) {
+            $this->assertInstanceOf('AceitaFacil\Entity\Error', $object, 'Parsed object is an Error');
+        }
+    }
+
+    public function testRefund()
+    {
+        // mock API response
+        $mock_adapter = new MockAdapter(function ($trans) {
+            $factory = new MessageFactory();
+            $response = $factory->createResponse(200, array(),
+                            '{"id":"1234","refunded":true}'
+                        );
+            return $response;
+        });
+        
+        $client = new Client(true, $mock_adapter);
+        $client->init('test', 'test');
+        
+        $payment_id = '1234';
+        
+        $response = $client->refund($payment_id);
+        $this->assertFalse($response->isError(), 'Not an error');
+        
+        $payments = $response->getObjects();
+        $this->assertNotEmpty($payments, 'Objects were filled');
+        
+        $payment = $payments[0];
+        $this->assertInstanceOf('AceitaFacil\Entity\Payment', $payment, 'Payment is ok');
+        $this->assertNotEmpty($payment->id, 'Transaction ID found');
+        $this->assertTrue($payment->refunded, 'Refund was done');
+    }
 }
