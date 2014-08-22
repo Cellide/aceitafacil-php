@@ -124,26 +124,47 @@ $client->getAllCards($customer_id);
 
 $client->deleteCard(\AceitaFacil\Entity\Customer $customer, $token);
 
-$client->makePayment(\AceitaFacil\Entity\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Entity\Card $card = null, $push_code = null);
+$client->makePayment(\AceitaFacil\Entity\Customer $customer, $items, $description, \AceitaFacil\Entity\Card $card = null, $push_code = null);
 
 $client->getPayment($payment_id);
 
 $client->getVendor($vendor_id);
 
-$client->createVendor(\AceitaFacil\Entity\Entity\Vendor $vendor);
+$client->createVendor(\AceitaFacil\Entity\Vendor $vendor);
 
-$client->updateVendor(\AceitaFacil\Entity\Entity\Vendor $vendor);
+$client->updateVendor(\AceitaFacil\Entity\Vendor $vendor);
 
 $client->getPaymentItemInfo($payment_id, $item_id);
 
-$client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Entity\Item $item);
+$client->updatePaymentItemInfo($payment_id, \AceitaFacil\Entity\Item $item);
 
 $client->refund($payment_id);
+
+$client->createSubscriptionPlan(\AceitaFacil\Entity\Subscription $subscription);
+
+$client->updateSubscriptionPlan(\AceitaFacil\Entity\Subscription $subscription);
+
+$client->getSubscriptionPlan($subscription_id);
+
+$client->subscribe(\AceitaFacil\Entity\Customer $customer, $subscription_id, $description = null, \AceitaFacil\Entity\Card $card = null, $push_code = null);
+
+$client->updateSubscribe(\AceitaFacil\Entity\Customer $customer, $subscription_id, $description = null, $push_code = null);
+
+$client->getSubscribe($customer_id);
+
+$client->cancelSubscribe($customer_id);
 
 ```
 
 Changelog
 -------------
+
+- 1.4.0 (2014-08-22):
+  - Added subscription methods
+  - New entity `Subscription`
+  - `Payment` entity updated to cover more info about refunds and subscriptions
+  - Added unit & integration tests
+  - Updated README
 
 - 1.3.0 (2014-08-21):
   - Added refund method

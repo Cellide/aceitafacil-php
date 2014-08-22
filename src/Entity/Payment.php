@@ -118,6 +118,20 @@ class Payment
     public $period_end;
     
     /**
+     * Subscription sign-in date
+     * 
+     * @var DateTime
+     */
+    public $signin_date;
+    
+    /**
+     * Next invoice date
+     * 
+     * @var DateTime
+     */
+    public $next_invoice_date;
+    
+    /**
      * Push endpoint which will be used by this payment
      * 
      * @var string
@@ -173,6 +187,8 @@ class Payment
         $entity->period_start = isset($json['period_start']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_start'], new \DateTimeZone('America/Sao_Paulo')) : null;
         $entity->period_end = isset($json['period_end']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['period_end'], new \DateTimeZone('America/Sao_Paulo')) : null;
         $entity->next_charge_attempt = isset($json['next_charge_attempt']) ? \DateTime::createFromFormat('Y-m-d H:i:s', $json['next_charge_attempt'], new \DateTimeZone('America/Sao_Paulo')) : null;
+        $entity->signin_date = isset($json['signin_date']) ? \DateTime::createFromFormat('Y-m-d', $json['signin_date'], new \DateTimeZone('America/Sao_Paulo')) : null;
+        $entity->next_invoice_date = isset($json['next_invoice_date']) ? \DateTime::createFromFormat('Y-m-d', $json['next_invoice_date'], new \DateTimeZone('America/Sao_Paulo')) : null;
         
         $entity->organization = new Vendor();
         $entity->organization->id = isset($json['organization_id']) ? $json['organization_id'] : null;

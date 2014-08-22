@@ -189,9 +189,9 @@ class Client
     }
     
     /**
-     * Make a payment using a card
+     * Make a payment
      * 
-     * Card must contain token and CVV
+     * Card (if used) must contain token and CVV
      * 
      * @param  Entity\Customer   $customer
      * @param  Entity\Item[]     $items
@@ -434,5 +434,208 @@ class Client
             throw new \InvalidArgumentException('Payment info missing');
         
         return $this->request('POST', "/invoice/$payment_id/refund");
+    }
+    
+    /**
+     * Create a Subscription plan
+     * 
+     * @param  \AceitaFacil\Entity\Subscription    $subscription
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function createSubscriptionPlan(Entity\Subscription $subscription)
+    {
+        return $this->upsertSubscriptionPlan($subscription, 'POST');
+    }
+    
+    /**
+     * Update a Subscription plan info
+     * 
+     * @param  \AceitaFacil\Entity\Subscription    $subscription
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function updateSubscriptionPlan(Entity\Subscription $subscription)
+    {
+        return $this->upsertSubscriptionPlan($subscription, 'PUT');
+    }
+
+    /**
+     * Upsert a Subscription plan
+     * 
+     * @param  \AceitaFacil\Entity\Subscription    $subscription
+     * @param  string                              $method          POST for insert, PUT for update
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    private function upsertSubscriptionPlan(Entity\Subscription $subscription, $method)
+    {
+        if (empty($subscription->id) || empty($subscription->name) || empty($subscription->description) || floatval($subscription->amount) <= 0)
+            throw new \InvalidArgumentException('Subscription info missing');
+        if ($subscription->interval_days == 0 && $subscription->interval_months == 0 && $subscription->interval_years == 0)
+            throw new \InvalidArgumentException('Subscription interval missing');
+        
+        $data = array(
+            'subscription_plan[id]' => $subscription->id,
+            'subscription_plan[amount]' => intval(floatval($subscription->amount)*100),
+            'subscription_plan[name]' => $subscription->name,
+            'subscription_plan[description]' => $subscription->description,
+            'subscription_plan[interval_days]' => intval($subscription->interval_days),
+            'subscription_plan[interval_months]' => intval($subscription->interval_months),
+            'subscription_plan[interval_years]' => intval($subscription->interval_years),
+            'subscription_plan[trial_days]' => intval($subscription->trial_days)
+        );
+        return $this->request($method, '/subscription/plan', $data);
+    }
+
+    /**
+     * Get info about a Subscription plan
+     * 
+     * @param  string  $subscription_id
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function getSubscriptionPlan($subscription_id)
+    {
+        if (empty($subscription_id))
+            throw new \InvalidArgumentException('Subscription info missing');
+        
+        return $this->request('GET', '/subscription/plan?subscription_plan[id]='.$subscription_id);
+    }
+    
+    /**
+     * Subscribe a Customer to a Subscription plan
+     * 
+     * @param  \AceitaFacil\Entity\Customer        $customer
+     * @param  string                              $subscription_id
+     * @param  string                              $description        If not supplied, Subscription plan's description will be used
+     * @param  \AceitaFacil\Entity\Card            $card               If not supplied, bill payment will be used
+     * @param  string                              $push_code          If supplied, this code will be used by AceitaFacil when pushing notifications about this transaction
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function subscribe(Entity\Customer $customer, $subscription_id, $description = null, Entity\Card $card = null, $push_code = null)
+    {
+        return $this->upsertSubscribe($customer, $subscription_id, 'POST', $description, $card, $push_code);
+    }
+    
+    /**
+     * Update a Customer subscription
+     * 
+     * @param  \AceitaFacil\Entity\Customer        $customer
+     * @param  string                              $subscription_id
+     * @param  string                              $description        If not supplied, Subscription plan's description will be used
+     * @param  string                              $push_code          If supplied, this code will be used by AceitaFacil when pushing notifications about this transaction
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function updateSubscribe(Entity\Customer $customer, $subscription_id, $description = null, $push_code = null)
+    {
+        return $this->upsertSubscribe($customer, $subscription_id, 'PUT', $description, null, $push_code);
+    }
+    
+    /**
+     * Get info about a Customer subscription
+     * 
+     * A Customer may only have one active subscription at a time
+     * 
+     * @param  string  $customer_id
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function getSubscribe($customer_id)
+    {
+        if (empty($customer_id))
+            throw new \InvalidArgumentException('Subscription info missing');
+        
+        return $this->request('GET', '/subscription/customer?customer[id]='.$customer_id);
+    }
+    
+    /**
+     * Cancel a Customer subscription
+     * 
+     * A Customer may only have one active subscription at a time.
+     * Canceling twice or an inexistent subscription will return a 409 error.
+     * 
+     * @param  string  $customer_id
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    public function cancelSubscribe($customer_id)
+    {
+        if (empty($customer_id))
+            throw new \InvalidArgumentException('Subscription info missing');
+        
+        return $this->request('DELETE', '/subscription/customer?customer[id]='.$customer_id);
+    }
+    
+    /**
+     * Upsert a Customer subscription plan
+     * 
+     * @param  \AceitaFacil\Entity\Customer        $customer
+     * @param  string                              $subscription_id
+     * @param  string                              $method             POST for insert, PUT for update, DELETE for removal
+     * @param  string                              $description        If not supplied, Subscription plan's description will be used
+     * @param  \AceitaFacil\Entity\Card            $card               If not supplied, bill payment will be used
+     * @param  string                              $push_code          If supplied, this code will be used by AceitaFacil when pushing notifications about this transaction
+     * @return Response
+     * @throws \InvalidArgumentException if not called correctly
+     */
+    private function upsertSubscribe(Entity\Customer $customer, $subscription_id, $method, $description = null, Entity\Card $card = null, $push_code = null)
+    {
+        if (empty($customer) || empty($customer->id) || empty($customer->email) || empty($customer->name) || empty($customer->language))
+            throw new \InvalidArgumentException('Customer info missing');
+        if (!empty($card) && (empty($card->token) || empty($card->cvv)))
+            throw new \InvalidArgumentException('Card info missing');
+        if (empty($subscription_id))
+            throw new \InvalidArgumentException('Subscription info missing');
+        
+        $payment_method = (!empty($card)) ? 1 : 2;
+        
+        // As of 2014-08-22, API is sensible to parameter order,
+        // also some POST parameters must not be sent when using PUT,
+        // so we use two different sets of starting $data
+        $post_data = array(
+            'subscription_plan[id]' => $subscription_id,
+            'customer[id]' => $customer->id,
+            'customer[email]' => $customer->email,
+            'customer[name]' => $customer->name,
+            'customer[email_language]' => $customer->language,
+            'paymentmethod[id]' => $payment_method
+        );
+        $put_data = array(
+            'customer[id]' => $customer->id
+        );
+        $data = ($method == 'POST') ? $post_data : $put_data;
+        
+        if (!empty($description)) {
+            $desc_data = array(
+                'description' => $description
+            );
+            $data = array_merge($data, $desc_data);
+        }
+        
+        if ($payment_method === 1) {
+            $card_data = array(
+                'card[token]' => $card->token,
+                'card[cvv]' => $card->cvv,
+            );
+            $data = array_merge($data, $card_data);
+        }
+        
+        if (!empty($this->push_endpoint)) {
+            $callback_data = array(
+                'callback[url]' => $this->push_endpoint
+            );
+            if (!empty($push_code)) {
+                $callback_code = array(
+                    'callback[code]' => $push_code
+                );
+                $callback_data = array_merge($callback_data, $callback_code);
+            }
+            $data = array_merge($data, $callback_data);
+        }
+        
+        return $this->request($method, '/subscription/customer', $data);
     }
 }

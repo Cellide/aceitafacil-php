@@ -89,6 +89,10 @@ class Response
         } else if (isset($this->body['paymentmethod'])) {
             // payment parsing
             $this->objects[] = Entity\Payment::parse($this->body);
+            if (isset($this->body['subscription_plan'])) {
+                // subscription also found, payment is a subscription
+                $this->objects[] = Entity\Subscription::parse($this->body['subscription_plan']);
+            }
         } else if (isset($this->body['vendor'])) {
             // vendor parsing
             $this->objects[] = Entity\Vendor::parse($this->body['vendor']);
@@ -98,6 +102,11 @@ class Response
         } else if (isset($this->body['refunded'])) {
             // refund parsing, same as payment
             $this->objects[] = Entity\Payment::parse($this->body);
+        } else if (isset($this->body['subscription_plan'])) {
+            // subscription parsing
+            $this->objects[] = Entity\Subscription::parse($this->body['subscription_plan']);
+        } else if (isset($this->body['deleted'])) {
+            // nothing to return
         } else {
             throw new \RuntimeException('Could not recognize response type');
         }
